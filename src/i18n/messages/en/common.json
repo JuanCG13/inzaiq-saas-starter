@@ -5,5 +5,42 @@
   "skipToContent": "Skip to content",
   "language": {
     "label": "Language"
+  },
+  "header": {
+    "announcement": "Well-chosen objects. Better-lived days.",
+    "announcementLink": "Discover the collection",
+    "home": "{brand}, home",
+    "navLabel": "Main navigation",
+    "collection": "Collection",
+    "philosophy": "Our point of view",
+    "manage": "Manage",
+    "bag": "My bag",
+    "bagCount": {
+      "one": "My bag, {count} item",
+      "other": "My bag, {count} items"
+    }
+  },
+  "footer": {
+    "tagline": "Fewer things. More intention.",
+    "explore": "Explore the collection",
+    "bag": "My bag",
+    "business": "My business",
+    "caption": "A selection for your everyday."
+  },
+  "boundaries": {
+    "error": {
+      "eyebrow": "LET'S PAUSE",
+      "title": "Something didn't go as we expected.",
+      "body": "You can try again. Your bag is still saved in this browser.",
+      "retry": "Try again",
+      "home": "Back to home"
+    },
+    "loading": "Getting your space ready…",
+    "notFound": {
+      "eyebrow": "404 / WE TOOK A LITTLE DETOUR",
+      "title": "Wrong turn.",
+      "body": "The page you're looking for isn't available. Your next favorite might be in the collection.",
+      "action": "Back to the store"
+    }
   }
 }

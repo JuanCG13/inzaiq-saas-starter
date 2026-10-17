@@ -14,13 +14,13 @@ const inputSchema = z.object({
 export function POST(request: Request) {
   return route(request, 'api.store.checkout', '/api/store/orders', async () => {
     requireModule('orders');
-    if (templateConfig.kind !== 'ecommerce') throw new AppError('MODULE_DISABLED', 'Tienda pública no habilitada.', 404);
+    if (templateConfig.kind !== 'ecommerce') throw new AppError('MODULE_DISABLED', 'The public store is not enabled.', 404);
     const actor = storeActor();
     const input = inputSchema.parse(await jsonBody(request));
     const provider = getPaymentProvider();
     // Older storefront JavaScript only understands manual receipts. Do not reserve
     // stock until the caller explicitly understands the hosted-checkout response.
-    if (provider && request.headers.get('x-checkout-protocol') !== 'hosted-v1') throw new AppError('CLIENT_UPGRADE_REQUIRED', 'Recargá la página antes de continuar al pago.', 409);
+    if (provider && request.headers.get('x-checkout-protocol') !== 'hosted-v1') throw new AppError('CLIENT_UPGRADE_REQUIRED', 'Reload the page before continuing to payment.', 409);
     await storefrontWriteBudget(actor.tenantId);
     if (provider) return paymentService().createHostedCheckout(actor, { ...input, channel: 'web', paymentMethod: 'manual' }, provider, checkoutUrls());
     const order = await service().createOrder(actor, { ...input, channel: 'web', paymentMethod: 'manual' });

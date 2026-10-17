@@ -1,4 +1,10 @@
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+"use client";
 
-export default function NotFoundPage() { return <main id="main-content" className="boundary-page"><span className="eyebrow">404 / NOS DESVIAMOS UN POCO</span><h1>Por acá no era.</h1><p>La página que buscás no está disponible. Tu próximo favorito puede estar en la colección.</p><Link className="button primary" href="/">Volver a la tienda <ArrowRight size={16} /></Link></main>; }
+import { ArrowRight } from "lucide-react";
+import { LocaleLink } from "@/i18n/link";
+import { useT } from "@/i18n/provider";
+
+export default function NotFoundPage() {
+  const t = useT("common");
+  return <main id="main-content" className="boundary-page"><span className="eyebrow">{t("boundaries.notFound.eyebrow")}</span><h1>{t("boundaries.notFound.title")}</h1><p>{t("boundaries.notFound.body")}</p><LocaleLink className="button primary" href="/">{t("boundaries.notFound.action")} <ArrowRight size={16} /></LocaleLink></main>;
+}

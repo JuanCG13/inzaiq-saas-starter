@@ -3,7 +3,12 @@
  * - currency: ISO 4217 default for new products and empty totals (USD unless customized).
  * - currencies: codes offered in the product editor; must include `currency`.
  * - i18n: languages offered by this installation (see docs/i18n.md to add one).
+ * - description: one tagline, or one per language (the default language is used as the fallback).
  * Changing the currency never converts existing prices.
+ *
+ * Validate and edit these with the CLI instead of by hand; it uses the same validators as the app:
+ *   npm run configure -- --name "Your Business" --currency EUR --currencies EUR,USD --locale en --locales en,es
+ * `npm run doctor` reports `i18n.settings` and `currency.settings`.
  */
 export interface TemplateConfig {
   name: string;

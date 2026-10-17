@@ -1,1 +1,131 @@
-{}
+{
+  "backLink": "Keep exploring",
+  "heading": {
+    "eyebrow": "YOUR PICKS",
+    "title": "My bag",
+    "itemCount": {
+      "one": "{count} item",
+      "other": "{count} items"
+    }
+  },
+  "loading": "Loading your bag…",
+  "empty": {
+    "title": "Something good starts here.",
+    "body": "Your bag is still empty. Find the one that feels like you.",
+    "action": "Explore the collection"
+  },
+  "item": {
+    "decrease": "Decrease quantity of {name}",
+    "increase": "Increase quantity of {name}",
+    "quantity": "Quantity",
+    "remove": "Remove {name}"
+  },
+  "summary": {
+    "title": "Your summary",
+    "products": "Products",
+    "multipleCurrencies": "Multiple currencies",
+    "delivery": "Delivery",
+    "deliveryValue": "To be arranged",
+    "productsTotal": "Products total"
+  },
+  "customer": {
+    "heading": "Who is it for?",
+    "name": "Full name",
+    "email": "Email",
+    "phone": "Phone",
+    "address": "Address",
+    "optional": "(optional)"
+  },
+  "payment": {
+    "loading": "Checking payment methods…",
+    "unavailable": "Payment method unavailable",
+    "method": {
+      "stripe": "Secure payment with Stripe",
+      "manual": "Payment to be arranged"
+    },
+    "noteRedirect": "You will finish paying on a secure Stripe page. The store never receives your card details.",
+    "noteManual": "Place your order without entering card details. Price and stock are checked when you confirm.",
+    "retry": "Retry"
+  },
+  "checkout": {
+    "mixedCurrencies": "Your bag has items in different currencies. Place a separate order for each currency.",
+    "refreshed": "Prices and availability updated. Review your bag before confirming.",
+    "refresh": "Update prices and stock",
+    "refreshing": "Updating…",
+    "ordersDisabled": "Order intake is turned off.",
+    "preparing": "Preparing your order…",
+    "continueToPayment": "Continue to secure payment",
+    "placeOrder": "Place order",
+    "footnoteRedirect": "Payment confirmation is verified on the server.",
+    "footnoteManual": "You are not charged at this step."
+  },
+  "recovery": {
+    "title": "Let's continue with the same order.",
+    "body": "We kept your bag and the reference from your previous attempt. First we will check its status so you don't end up with a duplicate order.",
+    "totalSent": "Total sent",
+    "verifying": "Checking…",
+    "resumePayment": "Resume payment",
+    "verifyOrder": "Check my order",
+    "footnote": "Coming back from the payment page neither confirms nor cancels a payment.",
+    "cancelledNotice": "The previous attempt is now closed. Check prices and availability before placing a new order. If you see a charge on your bank statement, contact the store.",
+    "corruptNotice": "We could not recover the reference for your previous payment. Contact the store before placing another order."
+  },
+  "receipt": {
+    "eyebrow": "ORDER RECEIVED",
+    "title": "Almost yours.",
+    "body": "We saved your order. Payment and delivery will be arranged with the store.",
+    "reference": "Reference",
+    "status": "Status",
+    "statusPending": "Payment pending",
+    "total": "Total",
+    "note": "Keep this reference to check on your order. You have not been charged."
+  },
+  "recovered": {
+    "eyebrow": "STATUS VERIFIED",
+    "confirmedTitle": "Payment confirmed.",
+    "receivedTitle": "Order received.",
+    "confirmedBody": "The server confirmed the payment for this attempt. The store will arrange delivery.",
+    "receivedBody": "Your order was already saved. Manual payment and delivery will be arranged with the store.",
+    "note": "We recovered your original order without creating another."
+  },
+  "actions": {
+    "backToCollection": "Back to the collection",
+    "backToBag": "Back to my bag"
+  },
+  "paymentReturn": {
+    "eyebrowVerified": "STATUS VERIFIED BY THE STORE",
+    "eyebrowReturn": "RETURN FROM PAYMENT",
+    "title": {
+      "checking": "We are verifying your payment.",
+      "confirmed": "Payment confirmed.",
+      "manualReceived": "Order received.",
+      "cancelled": "This attempt is closed.",
+      "pending": "Confirmation is pending."
+    },
+    "body": {
+      "confirmed": "The server confirmed the payment. The store will arrange delivery of your order.",
+      "manualReceived": "Your order is already saved. Manual payment and delivery will be arranged.",
+      "cancelled": "The server closed this attempt. You can go back to your bag and check availability before placing another order. If you see a charge on your bank statement, contact the store.",
+      "pending": "Returning to this page does not confirm a charge. We are checking the attempt's status with the store, and your bag is kept in the meantime."
+    },
+    "noReference": "We could not find a reference in this tab. If you already paid, contact the store before placing another order.",
+    "resumeSamePayment": "Resume the same payment",
+    "recheck": "Check again",
+    "verifying": "Checking…",
+    "footnote": "Checking the status never creates a new order."
+  },
+  "failures": {
+    "paymentModeUnavailable": "This payment method is not available.",
+    "storeUpdating": "The store is being updated. Reload this page before placing an order.",
+    "paymentOptions": "We could not check the available payment methods.",
+    "orderNotFound": "We could not find a confirmed order. Check your details and submit again; we are keeping the same reference to avoid duplicates.",
+    "stillVerifying": "Your order is still being verified. Wait a moment and check again before placing another order.",
+    "resumeFailed": "We could not verify the attempt. Your bag and the same reference are kept.",
+    "storageUnavailable": "We need this tab's storage to recover your order safely. Enable it and try again.",
+    "paymentUrlMissing": "Your order is registered, but we have not received a payment link yet. Use Resume payment to check the same attempt.",
+    "submitFailed": "We could not confirm the result. Your bag is kept so the same order can be recovered.",
+    "paymentUrlInvalid": "We did not receive a valid payment link.",
+    "paymentUrlUnverified": "We could not verify the payment link. Your order will not be created again.",
+    "returnVerifyFailed": "We could not verify the payment yet. Your attempt is still saved."
+  }
+}

@@ -1,1 +1,95 @@
-{}
+{
+  "demoStrip": "Tienda de demostración · Los pedidos se guardan como pruebas y no generan cobros.",
+  "hero": {
+    "eyebrow": "LO ESENCIAL, BIEN ELEGIDO",
+    "title": {
+      "line1": "Tu día a día.",
+      "line2": "Un poco mejor."
+    },
+    "lead": "Prendas, objetos y pequeños favoritos que hacen espacio para lo que importa.",
+    "cta": "Encontrá tu próximo favorito",
+    "note": "Hecho para acompañarte. Elegido para durar.",
+    "imageAlt": "Prendas de tonos naturales en una colección cuidadosamente elegida",
+    "edition": "{brand} / SELECCIÓN 01",
+    "caption": {
+      "kicker": "MENOS, PERO MEJOR",
+      "title": "Los nuevos esenciales."
+    },
+    "label": "Una colección con intención"
+  },
+  "principles": {
+    "details": "Detalles que hacen la diferencia",
+    "service": "Compra simple, atención cercana",
+    "link": "Conocé nuestra mirada"
+  },
+  "collection": {
+    "eyebrow": "ENCONTRÁ LO TUYO",
+    "title": "Pequeños grandes favoritos",
+    "count": {
+      "one": "{count} pieza, muchas posibilidades",
+      "many": "{count} de piezas, muchas posibilidades",
+      "other": "{count} piezas, muchas posibilidades"
+    },
+    "filterLabel": "Filtrar por categoría",
+    "all": "Todo",
+    "searchLabel": "Buscar productos",
+    "searchPlaceholder": "Buscá tu favorito",
+    "loadFailed": "No se pudo cargar la colección.",
+    "loading": "Cargando productos",
+    "error": {
+      "title": "La colección no pudo cargar.",
+      "retry": "Volver a intentar"
+    },
+    "empty": {
+      "title": "No encontramos ese favorito.",
+      "hint": "Probá otra palabra o explorá todas las categorías.",
+      "reset": "Ver toda la colección"
+    },
+    "loadMore": {
+      "action": "Cargar más productos",
+      "loading": "Cargando…",
+      "progress": {
+        "one": "Explorando {count} producto de la colección.",
+        "many": "Explorando {count} de productos de la colección.",
+        "other": "Explorando {count} productos de la colección."
+      }
+    }
+  },
+  "product": {
+    "view": "Ver {name}",
+    "viewDetails": "Ver detalle",
+    "soldOut": "Agotado",
+    "lowStock": "Últimas unidades",
+    "defaultBadge": "Selección {brand}",
+    "defaultCategory": "Esenciales",
+    "addToBag": "Añadir {name} a la bolsa"
+  },
+  "philosophy": {
+    "eyebrow": "NUESTRA MIRADA",
+    "title": {
+      "line1": "No necesitás más.",
+      "line2": "Necesitás lo que va con vos."
+    },
+    "body": "Creemos en elegir con calma. En lo simple que funciona y en esos detalles que hacen que algo cotidiano se sienta especial.",
+    "link": "Explorá la selección"
+  },
+  "toast": {
+    "added": "{name} en tu bolsa",
+    "viewBag": "Ver bolsa"
+  },
+  "detail": {
+    "close": "Cerrar detalle",
+    "eyebrowFallback": "SELECCIÓN {brand}",
+    "descriptionFallback": "Un esencial seleccionado para acompañarte todos los días.",
+    "stock": {
+      "one": "{count} disponible",
+      "many": "{count} de unidades disponibles",
+      "other": "{count} disponibles"
+    },
+    "outOfStock": "Temporalmente agotado",
+    "ordersUnavailable": "Pedidos no disponibles",
+    "add": "Añadir a mi bolsa",
+    "goToBag": "Ir a mi bolsa",
+    "note": "Pago y entrega a coordinar al confirmar el pedido."
+  }
+}

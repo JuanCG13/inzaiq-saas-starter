@@ -1,1 +1,31 @@
-{}
+{
+  "notice": {
+    "paused": "Las nuevas operaciones están pausadas."
+  },
+  "loadFailed": "No se pudo actualizar el estado del negocio.",
+  "settings": {
+    "title": "Operación del negocio",
+    "help": "Los cambios se aplican al guardar. El aviso y el estado se actualizan en las pantallas abiertas.",
+    "conflict": "Otra persona cambió la configuración. Recargá los valores y revisalos antes de guardar.",
+    "stale": "Hay una versión más reciente. Recargá los valores antes de guardar.",
+    "saveFailed": "No se pudo guardar.",
+    "unavailable": "Configuración no disponible.",
+    "loading": "Cargando configuración…",
+    "retry": "Reintentar",
+    "acceptOrders": {
+      "label": "Aceptar nuevas operaciones",
+      "help": "Al pausar, los pedidos y ventas existentes conservan su estado."
+    },
+    "notice": {
+      "label": "Aviso del negocio",
+      "placeholder": "Por ejemplo: hoy cerramos a las 18:00.",
+      "help": "Visible para quienes usan este negocio. {count}/200 caracteres."
+    },
+    "actions": {
+      "save": "Guardar configuración",
+      "saving": "Guardando…",
+      "reload": "Recargar valores"
+    },
+    "saved": "Configuración guardada."
+  }
+}

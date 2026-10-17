@@ -1,1 +1,31 @@
-{}
+{
+  "notice": {
+    "paused": "New operations are paused."
+  },
+  "loadFailed": "We couldn't update the business status.",
+  "settings": {
+    "title": "Business operations",
+    "help": "Changes take effect when you save. The notice and status refresh on every screen that's already open.",
+    "conflict": "Someone else changed the settings. Reload the values and review them before saving.",
+    "stale": "There's a newer version. Reload the values before saving.",
+    "saveFailed": "We couldn't save your changes.",
+    "unavailable": "Settings unavailable.",
+    "loading": "Loading settings…",
+    "retry": "Retry",
+    "acceptOrders": {
+      "label": "Accept new operations",
+      "help": "While paused, existing orders and sales keep their status."
+    },
+    "notice": {
+      "label": "Business notice",
+      "placeholder": "For example: we close at 6:00 PM today.",
+      "help": "Visible to everyone who uses this business. {count}/200 characters."
+    },
+    "actions": {
+      "save": "Save settings",
+      "saving": "Saving…",
+      "reload": "Reload values"
+    },
+    "saved": "Settings saved."
+  }
+}

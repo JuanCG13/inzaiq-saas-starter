@@ -2,8 +2,50 @@ import type { Customer } from "@/core/contracts";
 
 export interface PaymentOption {
   provider: "manual" | "stripe";
+  /** Server-side label for logs and agents. Never displayed: the UI picks its text from `provider` and `mode` so it follows the active language. */
   label: string;
   mode: "manual" | "redirect";
+}
+
+/**
+ * Stable reasons the checkout flow can fail without an API response. Helpers and pages throw
+ * these instead of sentences: the UI maps each code to a message in the `cart` namespace.
+ */
+export type CheckoutAttemptErrorCode =
+  | "PAYMENT_MODE_UNAVAILABLE"
+  | "STORAGE_UNAVAILABLE"
+  | "PAYMENT_URL_MISSING"
+  | "PAYMENT_URL_INVALID"
+  | "PAYMENT_URL_UNVERIFIED";
+
+/** English descriptions for logs and tests only; they are never shown to a customer. */
+const attemptErrorDetails: Record<CheckoutAttemptErrorCode, string> = {
+  PAYMENT_MODE_UNAVAILABLE: "The payment options response is not a supported provider and mode.",
+  STORAGE_UNAVAILABLE: "Session storage is unavailable, so the checkout attempt cannot be recovered safely.",
+  PAYMENT_URL_MISSING: "The order was registered but no hosted payment address was returned.",
+  PAYMENT_URL_INVALID: "The hosted payment address is missing or not a URL.",
+  PAYMENT_URL_UNVERIFIED: "The hosted payment address is not an allowed provider page.",
+};
+
+export class CheckoutAttemptError extends Error {
+  constructor(readonly code: CheckoutAttemptErrorCode) {
+    super(attemptErrorDetails[code]);
+    this.name = "CheckoutAttemptError";
+  }
+}
+
+/** `cart.json` key that explains each code to the customer. */
+export const checkoutErrorKeys = {
+  PAYMENT_MODE_UNAVAILABLE: "failures.paymentModeUnavailable",
+  STORAGE_UNAVAILABLE: "failures.storageUnavailable",
+  PAYMENT_URL_MISSING: "failures.paymentUrlMissing",
+  PAYMENT_URL_INVALID: "failures.paymentUrlInvalid",
+  PAYMENT_URL_UNVERIFIED: "failures.paymentUrlUnverified",
+} as const satisfies Record<CheckoutAttemptErrorCode, string>;
+
+/** Message key for a checkout flow error, or null when the error is not one of ours. */
+export function checkoutErrorKey(error: unknown): (typeof checkoutErrorKeys)[CheckoutAttemptErrorCode] | null {
+  return error instanceof CheckoutAttemptError ? checkoutErrorKeys[error.code] : null;
 }
 
 export interface CheckoutRecovery {
@@ -35,11 +77,11 @@ const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-
 
 /** Only configured provider-owned hosted checkout pages may receive browser navigation. */
 export function checkoutRedirectUrl(value: unknown, provider: string): string {
-  if (typeof value !== "string") throw new Error("No recibimos una dirección de pago válida.");
+  if (typeof value !== "string") throw new CheckoutAttemptError("PAYMENT_URL_INVALID");
   let url: URL;
-  try { url = new URL(value); } catch { throw new Error("No recibimos una dirección de pago válida."); }
+  try { url = new URL(value); } catch { throw new CheckoutAttemptError("PAYMENT_URL_INVALID"); }
   if (provider !== "stripe" || url.protocol !== "https:" || url.hostname !== "checkout.stripe.com" || url.port || url.username || url.password) {
-    throw new Error("No se pudo verificar la dirección de pago. Tu pedido no se volverá a crear.");
+    throw new CheckoutAttemptError("PAYMENT_URL_UNVERIFIED");
   }
   return url.href;
 }

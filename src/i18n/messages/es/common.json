@@ -5,5 +5,43 @@
   "skipToContent": "Saltar al contenido",
   "language": {
     "label": "Idioma"
+  },
+  "header": {
+    "announcement": "Objetos bien elegidos. Días mejor vividos.",
+    "announcementLink": "Descubrí la colección",
+    "home": "{brand}, inicio",
+    "navLabel": "Navegación principal",
+    "collection": "Colección",
+    "philosophy": "Nuestra mirada",
+    "manage": "Administrar",
+    "bag": "Mi bolsa",
+    "bagCount": {
+      "one": "Carrito, {count} artículo",
+      "many": "Carrito, {count} de artículos",
+      "other": "Carrito, {count} artículos"
+    }
+  },
+  "footer": {
+    "tagline": "Menos cosas. Más intención.",
+    "explore": "Explorar colección",
+    "bag": "Mi bolsa",
+    "business": "Mi negocio",
+    "caption": "Una selección para tu día a día."
+  },
+  "boundaries": {
+    "error": {
+      "eyebrow": "HAGAMOS UNA PAUSA",
+      "title": "Algo no salió como esperábamos.",
+      "body": "Podés volver a intentar. Tu bolsa sigue guardada en este navegador.",
+      "retry": "Volver a intentar",
+      "home": "Volver al inicio"
+    },
+    "loading": "Preparando tu espacio…",
+    "notFound": {
+      "eyebrow": "404 / NOS DESVIAMOS UN POCO",
+      "title": "Por acá no era.",
+      "body": "La página que buscás no está disponible. Tu próximo favorito puede estar en la colección.",
+      "action": "Volver a la tienda"
+    }
   }
 }

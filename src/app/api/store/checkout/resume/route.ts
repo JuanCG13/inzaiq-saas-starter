@@ -9,7 +9,7 @@ export const runtime = 'nodejs';
 export function POST(request: Request) {
   return route(request, 'api.store.checkout.resume', '/api/store/checkout/resume', async () => {
     requireModule('orders');
-    if (templateConfig.kind !== 'ecommerce') throw new AppError('MODULE_DISABLED', 'Tienda pública no habilitada.', 404);
+    if (templateConfig.kind !== 'ecommerce') throw new AppError('MODULE_DISABLED', 'The public store is not enabled.', 404);
     const actor = storeActor();
     const { idempotencyKey } = z.object({ idempotencyKey: z.string().uuid() }).strict().parse(await jsonBody(request));
     await storefrontWriteBudget(actor.tenantId);

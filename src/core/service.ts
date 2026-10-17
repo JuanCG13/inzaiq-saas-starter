@@ -284,7 +284,7 @@ export function createCommerceService(db: Kysely<Database>, options: ServiceOpti
             return loadOrder(trx, previous);
           }
           const runtime = await trx.selectFrom('commerce_runtime_settings').select('accepting_orders').where('tenant_id', '=', actor.tenantId).executeTakeFirst();
-          if (runtime?.accepting_orders === 0) throw new AppError('ORDERS_PAUSED', 'Las nuevas operaciones están pausadas. Intentá más tarde.', 409);
+          if (runtime?.accepting_orders === 0) throw new AppError('ORDERS_PAUSED', 'New orders are paused. Try again later.', 409);
           // Claim the idempotency key before changing stock. Concurrent inserts serialize on the unique constraint.
           const id = randomUUID();
           const row = await trx.insertInto('commerce_orders').values({

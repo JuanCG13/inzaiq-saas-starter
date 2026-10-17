@@ -19,7 +19,7 @@
     "demo": "npm run demo:setup && next dev",
     "verify": "npm run typecheck && npm test && npm run build",
     "doctor": "node --import tsx scripts/doctor.ts",
-    "configure": "node scripts/configure.mjs",
+    "configure": "node --import tsx scripts/configure.ts",
     "test:e2e": "playwright test",
     "capacity:check": "node deploy/enterprise/check-budget.mjs",
     "test:load": "k6 run tests/load/read-journeys.js"

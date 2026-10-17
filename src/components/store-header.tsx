@@ -1,22 +1,26 @@
 "use client";
 
-import Link from "next/link";
 import { ArrowUpRight, ShoppingBag } from "lucide-react";
+import { LocaleLink } from "@/i18n/link";
+import { useT } from "@/i18n/provider";
+import { LocaleSwitcher } from "@/i18n/switcher";
 import { useCart } from "./cart-provider";
 import { templateConfig } from "@/template.config";
 
 export function StoreHeader() {
   const { count } = useCart();
+  const t = useT("common");
   return <>
-    <div className="announcement">Objetos bien elegidos. Días mejor vividos. <span>Descubrí la colección <ArrowUpRight size={12} /></span></div>
+    <div className="announcement">{t("header.announcement")} <span>{t("header.announcementLink")} <ArrowUpRight size={12} /></span></div>
     <header className="store-header">
-      <Link href="/" className="wordmark" aria-label={`${templateConfig.name}, inicio`}>{templateConfig.name}<span>®</span></Link>
-      <nav aria-label="Navegación principal" className="store-nav"><Link href="/#collection">Colección</Link><Link href="/#philosophy">Nuestra mirada</Link></nav>
-      <div className="header-actions"><Link href="/admin" className="manage-link">Administrar <ArrowUpRight size={13} /></Link><Link href="/cart" className="cart-link" aria-label={`Carrito, ${count} artículos`}><ShoppingBag size={19} strokeWidth={1.6} /><span className="cart-label">Mi bolsa</span><span className="cart-count">{count}</span></Link></div>
+      <LocaleLink href="/" className="wordmark" aria-label={t("header.home", { brand: templateConfig.name })}>{templateConfig.name}<span>®</span></LocaleLink>
+      <nav aria-label={t("header.navLabel")} className="store-nav"><LocaleLink href="/#collection">{t("header.collection")}</LocaleLink><LocaleLink href="/#philosophy">{t("header.philosophy")}</LocaleLink></nav>
+      <div className="header-actions"><LocaleSwitcher /><LocaleLink href="/admin" className="manage-link">{t("header.manage")} <ArrowUpRight size={13} /></LocaleLink><LocaleLink href="/cart" className="cart-link" aria-label={t("header.bagCount", { count })}><ShoppingBag size={19} strokeWidth={1.6} /><span className="cart-label">{t("header.bag")}</span><span className="cart-count">{count}</span></LocaleLink></div>
     </header>
   </>;
 }
 
 export function StoreFooter() {
-  return <footer className="store-footer"><div><Link href="/" className="wordmark">{templateConfig.name}<span>®</span></Link><p>Menos cosas. Más intención.</p></div><div className="footer-links"><Link href="/#collection">Explorar colección</Link><Link href="/cart">Mi bolsa</Link><Link href="/admin">Mi negocio <ArrowUpRight size={12} /></Link></div><span className="footer-caption">Una selección para tu día a día.</span></footer>;
+  const t = useT("common");
+  return <footer className="store-footer"><div><LocaleLink href="/" className="wordmark">{templateConfig.name}<span>®</span></LocaleLink><p>{t("footer.tagline")}</p></div><div className="footer-links"><LocaleLink href="/#collection">{t("footer.explore")}</LocaleLink><LocaleLink href="/cart">{t("footer.bag")}</LocaleLink><LocaleLink href="/admin">{t("footer.business")} <ArrowUpRight size={12} /></LocaleLink></div><span className="footer-caption">{t("footer.caption")}</span></footer>;
 }

@@ -1,1 +1,132 @@
-{}
+{
+  "backLink": "Seguir explorando",
+  "heading": {
+    "eyebrow": "TUS ELEGIDOS",
+    "title": "Mi bolsa",
+    "itemCount": {
+      "one": "{count} artículo",
+      "many": "{count} de artículos",
+      "other": "{count} artículos"
+    }
+  },
+  "loading": "Cargando tu bolsa…",
+  "empty": {
+    "title": "Acá empieza algo bueno.",
+    "body": "Tu bolsa todavía está vacía. Encontrá eso que va con vos.",
+    "action": "Explorar colección"
+  },
+  "item": {
+    "decrease": "Reducir cantidad de {name}",
+    "increase": "Aumentar cantidad de {name}",
+    "quantity": "Cantidad",
+    "remove": "Eliminar {name}"
+  },
+  "summary": {
+    "title": "Tu resumen",
+    "products": "Productos",
+    "multipleCurrencies": "Varias monedas",
+    "delivery": "Entrega",
+    "deliveryValue": "A coordinar",
+    "productsTotal": "Total de productos"
+  },
+  "customer": {
+    "heading": "¿Para quién es?",
+    "name": "Nombre completo",
+    "email": "Email",
+    "phone": "Teléfono",
+    "address": "Dirección",
+    "optional": "(opcional)"
+  },
+  "payment": {
+    "loading": "Consultando medios de pago…",
+    "unavailable": "Medio de pago no disponible",
+    "method": {
+      "stripe": "Pago seguro con Stripe",
+      "manual": "Pago a coordinar"
+    },
+    "noteRedirect": "Continuarás en una página segura de Stripe para completar el pago. La tienda no recibe datos de tu tarjeta.",
+    "noteManual": "Confirmá tu pedido sin ingresar datos de tarjeta. El precio y el stock se verifican al confirmar.",
+    "retry": "Reintentar"
+  },
+  "checkout": {
+    "mixedCurrencies": "Tu bolsa incluye distintas monedas. Realizá un pedido separado por moneda.",
+    "refreshed": "Precios y disponibilidad actualizados. Revisá tu bolsa antes de confirmar.",
+    "refresh": "Actualizar precios y stock",
+    "refreshing": "Actualizando…",
+    "ordersDisabled": "La recepción de pedidos está desactivada.",
+    "preparing": "Preparando pedido…",
+    "continueToPayment": "Continuar al pago seguro",
+    "placeOrder": "Confirmar pedido",
+    "footnoteRedirect": "La confirmación del pago se verifica en el servidor.",
+    "footnoteManual": "No se realiza ningún cobro en este paso."
+  },
+  "recovery": {
+    "title": "Continuemos el mismo pedido.",
+    "body": "Conservamos tu bolsa y la referencia del intento anterior. Primero verificaremos su estado para evitar un pedido duplicado.",
+    "totalSent": "Total enviado",
+    "verifying": "Verificando…",
+    "resumePayment": "Retomar pago",
+    "verifyOrder": "Verificar mi pedido",
+    "footnote": "Volver desde la pasarela no confirma ni cancela un pago.",
+    "cancelledNotice": "El intento anterior ya está cerrado. Revisá precios y disponibilidad antes de crear un nuevo pedido. Si viste un cargo en tu banco, consultá con la tienda.",
+    "corruptNotice": "No pudimos recuperar la referencia del pago anterior. Contactá a la tienda antes de enviar otro pedido."
+  },
+  "receipt": {
+    "eyebrow": "PEDIDO RECIBIDO",
+    "title": "Ya es casi tuyo.",
+    "body": "Guardamos tu pedido. El pago y la entrega quedan pendientes de coordinación con la tienda.",
+    "reference": "Referencia",
+    "status": "Estado",
+    "statusPending": "Pendiente de pago",
+    "total": "Total",
+    "note": "Conservá esta referencia para consultar tu pedido. No se realizó ningún cobro."
+  },
+  "recovered": {
+    "eyebrow": "ESTADO VERIFICADO",
+    "confirmedTitle": "Pago confirmado.",
+    "receivedTitle": "Pedido recibido.",
+    "confirmedBody": "El servidor confirmó el pago de este intento. La tienda coordinará la entrega.",
+    "receivedBody": "Tu pedido ya estaba guardado. El pago manual y la entrega quedan a coordinar con la tienda.",
+    "note": "Recuperamos el pedido original sin crear otro."
+  },
+  "actions": {
+    "backToCollection": "Volver a la colección",
+    "backToBag": "Volver a mi bolsa"
+  },
+  "paymentReturn": {
+    "eyebrowVerified": "ESTADO VERIFICADO POR LA TIENDA",
+    "eyebrowReturn": "REGRESO DEL PAGO",
+    "title": {
+      "checking": "Estamos verificando el pago.",
+      "confirmed": "Pago confirmado.",
+      "manualReceived": "Pedido recibido.",
+      "cancelled": "Este intento está cerrado.",
+      "pending": "La confirmación está pendiente."
+    },
+    "body": {
+      "confirmed": "El servidor confirmó el pago. La tienda coordinará la entrega de tu pedido.",
+      "manualReceived": "El pedido ya está guardado. El pago manual y la entrega quedan a coordinar.",
+      "cancelled": "El servidor cerró este intento. Podés volver a la bolsa y revisar disponibilidad antes de crear otro. Si ves un cargo en tu banco, consultá con la tienda.",
+      "pending": "Volver a esta página no confirma un cobro. Estamos verificando el estado del intento con la tienda; tu bolsa se conserva mientras tanto."
+    },
+    "noReference": "No encontramos una referencia en esta pestaña. Si ya realizaste el pago, consultá con la tienda antes de enviar otro pedido.",
+    "resumeSamePayment": "Retomar el mismo pago",
+    "recheck": "Volver a verificar",
+    "verifying": "Verificando…",
+    "footnote": "No se crean pedidos nuevos al consultar el estado."
+  },
+  "failures": {
+    "paymentModeUnavailable": "La modalidad de pago no está disponible.",
+    "storeUpdating": "La tienda se está actualizando. Recargá esta página antes de confirmar un pedido.",
+    "paymentOptions": "No pudimos consultar los medios de pago.",
+    "orderNotFound": "No encontramos un pedido confirmado. Revisá tus datos y volvé a enviar; conservamos la misma referencia para evitar duplicados.",
+    "stillVerifying": "Tu pedido sigue en verificación. Esperá un momento y volvé a consultar antes de crear otro.",
+    "resumeFailed": "No pudimos verificar el intento. Conservamos tu bolsa y la misma referencia.",
+    "storageUnavailable": "Necesitamos el almacenamiento de esta pestaña para recuperar tu pedido de forma segura. Habilitalo y volvé a intentar.",
+    "paymentUrlMissing": "Tu pedido está registrado, pero todavía no recibimos una dirección de pago. Usá Retomar pago para consultar el mismo intento.",
+    "submitFailed": "No pudimos confirmar el resultado. Conservamos tu bolsa para recuperar el mismo pedido.",
+    "paymentUrlInvalid": "No recibimos una dirección de pago válida.",
+    "paymentUrlUnverified": "No se pudo verificar la dirección de pago. Tu pedido no se volverá a crear.",
+    "returnVerifyFailed": "Todavía no pudimos verificar el pago. Tu intento sigue conservado."
+  }
+}

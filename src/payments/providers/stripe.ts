@@ -34,25 +34,25 @@ export interface StripeProviderOptions {
 function invalidInput(message: string): never { throw new AppError('PAYMENT_INPUT_INVALID', message); }
 function validateMoney(amount: unknown, currency: unknown): asserts currency is string {
   if (typeof currency !== 'string' || !Object.hasOwn(STRIPE_CURRENCY_EXPONENTS, currency)) {
-    throw new AppError('PAYMENT_CURRENCY_UNSUPPORTED', 'La moneda no está habilitada para esta pasarela.');
+    throw new AppError('PAYMENT_CURRENCY_UNSUPPORTED', 'The currency is not enabled for this payment gateway.');
   }
   if (typeof amount !== 'number' || !Number.isSafeInteger(amount) || amount < 0 || amount > MAX_AMOUNT_MINOR) {
-    invalidInput('El importe está fuera del rango admitido por esta pasarela.');
+    invalidInput('The amount is outside the range supported by this payment gateway.');
   }
   // Reject if the application's minor-unit representation cannot be passed
   // unchanged to Stripe; never guess a conversion.
   const digits = new Intl.NumberFormat('en', { style: 'currency', currency }).resolvedOptions().maximumFractionDigits;
   if (digits !== STRIPE_CURRENCY_EXPONENTS[currency]) {
-    throw new AppError('PAYMENT_CURRENCY_UNSUPPORTED', 'La moneda requiere una conversión no habilitada.');
+    throw new AppError('PAYMENT_CURRENCY_UNSUPPORTED', 'The currency requires a conversion that is not enabled.');
   }
 }
 function validateReturnUrl(value: string): void {
-  if (typeof value !== 'string' || value.length > 2048) invalidInput('La URL de retorno no es válida.');
+  if (typeof value !== 'string' || value.length > 2048) invalidInput('The return URL is not valid.');
   let url: URL;
-  try { url = new URL(value); } catch { return invalidInput('La URL de retorno no es válida.'); }
+  try { url = new URL(value); } catch { return invalidInput('The return URL is not valid.'); }
   const local = process.env.NODE_ENV !== 'production' && ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);
   if (url.username || url.password || (url.protocol !== 'https:' && !(local && url.protocol === 'http:'))) {
-    invalidInput('La URL de retorno debe usar HTTPS.');
+    invalidInput('The return URL must use HTTPS.');
   }
 }
 function trustedCheckoutUrl(value: unknown): value is string {
@@ -62,7 +62,7 @@ function trustedCheckoutUrl(value: unknown): value is string {
     return url.protocol === 'https:' && url.hostname === 'checkout.stripe.com' && !url.username && !url.password && !url.port;
   } catch { return false; }
 }
-function eventError(): never { throw new AppError('PAYMENT_EVENT_INVALID', 'El evento de pago no es válido.'); }
+function eventError(): never { throw new AppError('PAYMENT_EVENT_INVALID', 'The payment event is not valid.'); }
 
 export class StripePaymentProvider implements PaymentProvider {
   readonly id = 'stripe';
@@ -74,11 +74,11 @@ export class StripePaymentProvider implements PaymentProvider {
 
   constructor(options: StripeProviderOptions) {
     if (!/^(?:rk|sk)_(?:test|live)_[A-Za-z0-9]+$/.test(options.secretKey) || !/^whsec_[A-Za-z0-9]+$/.test(options.webhookSecret)) {
-      throw new AppError('PAYMENT_NOT_CONFIGURED', 'La pasarela de pagos no está configurada.', 503);
+      throw new AppError('PAYMENT_NOT_CONFIGURED', 'The payment gateway is not configured.', 503);
     }
     const identifier = options.integrationIdentifier ?? STRIPE_INTEGRATION_IDENTIFIER;
     if (!/^[a-z][a-z0-9-]{1,70}-[a-z]{8}$/.test(identifier)) {
-      throw new AppError('PAYMENT_NOT_CONFIGURED', 'El identificador de integración no es válido.', 503);
+      throw new AppError('PAYMENT_NOT_CONFIGURED', 'The integration identifier is not valid.', 503);
     }
     this.liveMode = options.secretKey.startsWith('rk_live_') || options.secretKey.startsWith('sk_live_');
     this.webhookSecret = options.webhookSecret;
@@ -92,7 +92,7 @@ export class StripePaymentProvider implements PaymentProvider {
   validateCheckoutInput(input: CheckoutInput): void {
     validateMoney(input.amountMinor, input.currency);
     if (!validId(input.orderId) || !validId(input.tenantId) || typeof input.idempotencyKey !== 'string' ||
-      !/^[A-Za-z0-9:_-]{1,255}$/.test(input.idempotencyKey)) invalidInput('La referencia de pago no es válida.');
+      !/^[A-Za-z0-9:_-]{1,255}$/.test(input.idempotencyKey)) invalidInput('The payment reference is not valid.');
     validateReturnUrl(input.successUrl); validateReturnUrl(input.cancelUrl);
   }
 
@@ -110,21 +110,21 @@ export class StripePaymentProvider implements PaymentProvider {
           metadata, payment_intent_data: { metadata },
           line_items: [{ quantity: 1, price_data: {
             currency: input.currency.toLowerCase(), unit_amount: input.amountMinor,
-            product_data: { name: 'Pedido de tienda' },
+            product_data: { name: 'Store order' },
           } }],
           success_url: input.successUrl, cancel_url: input.cancelUrl,
         }, { idempotencyKey: input.idempotencyKey });
       } catch {
         // A timeout may occur after Stripe created the session: caller must keep
         // the reservation and retry with this same idempotency key.
-        throw new AppError('PAYMENT_PROVIDER_UNAVAILABLE', 'No se pudo confirmar la sesión de pago. Reintentá el mismo pedido.', 503);
+        throw new AppError('PAYMENT_PROVIDER_UNAVAILABLE', 'Could not confirm the payment session. Retry the same order.', 503);
       }
       if (!session || typeof session !== 'object' || session.livemode !== this.liveMode || session.mode !== 'payment' ||
         session.amount_total !== input.amountMinor || typeof session.currency !== 'string' || session.currency.toUpperCase() !== input.currency ||
         session.metadata?.orderId !== input.orderId || session.metadata?.tenantId !== input.tenantId ||
         !validId(session.id) || !trustedCheckoutUrl(session.url) ||
         !Number.isSafeInteger(session.expires_at) || session.expires_at <= 0 || session.expires_at > 8_640_000_000_000) {
-        throw new AppError('PAYMENT_RESPONSE_INVALID', 'La respuesta de la pasarela requiere revisión.', 502);
+        throw new AppError('PAYMENT_RESPONSE_INVALID', 'The payment gateway response requires review.', 502);
       }
       return { sessionId: session.id, url: session.url, expiresAt: new Date(session.expires_at * 1000).toISOString() };
     });
@@ -138,10 +138,10 @@ export class StripePaymentProvider implements PaymentProvider {
         if (!signature) throw new Error('missing_signature');
         event = this.client.webhooks.constructEvent(rawBody, signature, this.webhookSecret, 300);
       } catch {
-        throw new AppError('PAYMENT_SIGNATURE_INVALID', 'La firma del evento no es válida.', 400);
+        throw new AppError('PAYMENT_SIGNATURE_INVALID', 'The event signature is not valid.', 400);
       }
       if (!event || typeof event !== 'object') eventError();
-      if (event.livemode !== this.liveMode) throw new AppError('PAYMENT_MODE_MISMATCH', 'El modo del evento no coincide con la pasarela.', 400);
+      if (event.livemode !== this.liveMode) throw new AppError('PAYMENT_MODE_MISMATCH', 'The event mode does not match the payment gateway.', 400);
       if (!supportedTypes.has(event.type)) return null;
       const session = event.data?.object as Stripe.Checkout.Session;
       if (!session || typeof session !== 'object' || session.object !== 'checkout.session' || session.mode !== 'payment' || session.livemode !== this.liveMode) eventError();

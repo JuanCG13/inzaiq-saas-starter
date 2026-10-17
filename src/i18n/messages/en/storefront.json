@@ -1,1 +1,92 @@
-{}
+{
+  "demoStrip": "Demo store · Orders are saved as test orders and never charged.",
+  "hero": {
+    "eyebrow": "THE ESSENTIALS, WELL CHOSEN",
+    "title": {
+      "line1": "Your everyday.",
+      "line2": "Just a little better."
+    },
+    "lead": "Clothing, objects and small favorites that make room for what matters.",
+    "cta": "Find your next favorite",
+    "note": "Made to keep you company. Chosen to last.",
+    "imageAlt": "Clothing in natural tones from a carefully chosen collection",
+    "edition": "{brand} / SELECTION 01",
+    "caption": {
+      "kicker": "LESS, BUT BETTER",
+      "title": "The new essentials."
+    },
+    "label": "A collection with intention"
+  },
+  "principles": {
+    "details": "Details that make the difference",
+    "service": "Simple shopping, personal service",
+    "link": "See our point of view"
+  },
+  "collection": {
+    "eyebrow": "FIND WHAT'S YOURS",
+    "title": "Little big favorites",
+    "count": {
+      "one": "{count} piece, endless possibilities",
+      "other": "{count} pieces, endless possibilities"
+    },
+    "filterLabel": "Filter by category",
+    "all": "All",
+    "searchLabel": "Search products",
+    "searchPlaceholder": "Search for your favorite",
+    "loadFailed": "We couldn't load the collection.",
+    "loading": "Loading products",
+    "error": {
+      "title": "The collection couldn't load.",
+      "retry": "Try again"
+    },
+    "empty": {
+      "title": "We couldn't find that favorite.",
+      "hint": "Try another word or explore all categories.",
+      "reset": "View the whole collection"
+    },
+    "loadMore": {
+      "action": "Load more products",
+      "loading": "Loading…",
+      "progress": {
+        "one": "Exploring {count} product from the collection.",
+        "other": "Exploring {count} products from the collection."
+      }
+    }
+  },
+  "product": {
+    "view": "View {name}",
+    "viewDetails": "View details",
+    "soldOut": "Sold out",
+    "lowStock": "Only a few left",
+    "defaultBadge": "{brand} Selection",
+    "defaultCategory": "Essentials",
+    "addToBag": "Add {name} to the bag"
+  },
+  "philosophy": {
+    "eyebrow": "OUR POINT OF VIEW",
+    "title": {
+      "line1": "You don't need more.",
+      "line2": "You need what suits you."
+    },
+    "body": "We believe in choosing calmly. In simple things that work, and in the details that make something everyday feel special.",
+    "link": "Explore the selection"
+  },
+  "toast": {
+    "added": "{name} added to your bag",
+    "viewBag": "View bag"
+  },
+  "detail": {
+    "close": "Close details",
+    "eyebrowFallback": "{brand} SELECTION",
+    "descriptionFallback": "A carefully chosen essential to go with you every day.",
+    "stock": {
+      "one": "{count} available",
+      "other": "{count} available"
+    },
+    "outOfStock": "Temporarily sold out",
+    "ordersUnavailable": "Orders unavailable",
+    "add": "Add to my bag",
+    "goToBag": "Go to my bag",
+    "note": "Payment and delivery are arranged when you place your order."
+  }
+}

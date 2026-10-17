@@ -2,6 +2,7 @@ import nextEnv from '@next/env';
 import { sql } from 'kysely';
 import { getSchema } from 'better-auth/db';
 import { templateConfig } from '../src/template.config';
+import { checkSettings } from './lib/configure';
 import { assertSchemaReady } from '../src/lib/readiness';
 nextEnv.loadEnvConfig(process.cwd());
 const checks: { check: string; ok: boolean }[] = [];
@@ -14,6 +15,10 @@ checks.push({ check: 'database.provider', ok: ['postgres','supabase','neon','tur
 checks.push({ check: 'auth.secret.length', ok: (process.env.BETTER_AUTH_SECRET?.length ?? 0) >= 32 });
 checks.push({ check: 'modules.dependencies', ok: !templateConfig.modules.orders || (templateConfig.modules.catalog && templateConfig.modules.inventory) });
 checks.push({ check: 'production.demo.disabled', ok: process.env.NODE_ENV !== 'production' || process.env.DEMO_MODE !== 'true' });
+for (const result of checkSettings(templateConfig)) {
+  checks.push({ check: result.check, ok: result.ok });
+  if (result.message) console.error(`${result.check}: ${result.message}`);
+}
 const { authOrigin, getAuth } = await import('../src/lib/auth');
 await check('auth.origin', () => { const origin=authOrigin(); if (process.env.APP_URL && new URL(process.env.APP_URL).origin !== origin) throw new Error(); });
 const { getPaymentProvider } = await import('../src/payments/registry');

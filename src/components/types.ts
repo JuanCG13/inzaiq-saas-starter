@@ -19,9 +19,3 @@ export function safeImageUrl(value: string) {
   }
 }
 
-
-export function errorMessage(error: unknown, fallback = "No se pudo completar la operación.") {
-  if (!(error instanceof Error)) return fallback;
-  const requestId = "requestId" in error && typeof error.requestId === "string" ? error.requestId : null;
-  return `${error.message}${requestId ? ` Referencia: ${requestId}` : ""}`;
-}

@@ -1,1 +1,380 @@
-{}
+{
+  "shell": {
+    "navLabel": "Administración",
+    "workspaceLabel": "ESPACIO DE TRABAJO",
+    "storeKind": "Mi tienda online",
+    "mcpBadge": "MCP",
+    "agentCard": {
+      "title": "Un asistente a tu lado",
+      "body": "Consultá tu negocio con una conversación.",
+      "action": "Conectar mi agente"
+    },
+    "visitStore": "Visitar mi tienda",
+    "profile": {
+      "fallbackName": "Tu cuenta",
+      "fallbackRole": "Acceso protegido",
+      "demoName": "Administrador demo"
+    },
+    "breadcrumbRoot": "Mi tienda",
+    "connection": {
+      "demo": "Demostración",
+      "workspace": "Espacio de trabajo"
+    },
+    "viewStore": "Ver tienda",
+    "demoBanner": "Modo demostración. Los cambios se guardan en este entorno de pruebas; no se procesan cobros.",
+    "refresh": "Actualizar datos",
+    "loading": "Preparando tu espacio…",
+    "retry": "Reintentar",
+    "signInPrompt": {
+      "title": "Tu negocio tiene su propio espacio.",
+      "action": "Iniciar sesión"
+    },
+    "agentsDisabled": {
+      "title": "Módulo de agentes desactivado.",
+      "body": "Tu agente desarrollador puede habilitarlo desde la configuración del template."
+    },
+    "loadMore": {
+      "loading": "Cargando…",
+      "action": "Cargar más",
+      "status": "Mostrando {count} registros. Hay más resultados disponibles."
+    },
+    "footer": {
+      "tagline": "{brand} · Un negocio más simple.",
+      "access": "Acceso por roles"
+    },
+    "notices": {
+      "orderUpdated": "Pedido actualizado.",
+      "productSaved": "Producto guardado.",
+      "inventoryUpdated": "Inventario actualizado."
+    },
+    "errors": {
+      "refresh": "No pudimos actualizar tu negocio.",
+      "signIn": "Iniciá sesión para administrar tu tienda."
+    }
+  },
+  "nav": {
+    "overview": "Vista general",
+    "products": "Productos",
+    "orders": "Pedidos",
+    "agents": "Mi agente",
+    "settings": "Configuración"
+  },
+  "views": {
+    "overview": {
+      "eyebrow": "TU NEGOCIO, EN UN VISTAZO",
+      "title": "Todo en su lugar.",
+      "description": "Menos tareas. Más tiempo para hacer crecer tu marca."
+    },
+    "products": {
+      "eyebrow": "TU COLECCIÓN",
+      "title": "Cada detalle cuenta.",
+      "description": "Productos, precios y disponibilidad, siempre al día."
+    },
+    "orders": {
+      "eyebrow": "DEL CARRITO A TU NEGOCIO",
+      "title": "Cada pedido, más cerca.",
+      "description": "Revisá pedidos y coordiná el pago con tus clientes."
+    },
+    "agents": {
+      "eyebrow": "UNA NUEVA FORMA DE TRABAJAR",
+      "title": "Tu negocio. Tu agente.",
+      "description": "Conectá tu asistente para consultar y administrar tu tienda."
+    },
+    "settings": {
+      "eyebrow": "HACÉLO TUYO",
+      "title": "La esencia de tu marca.",
+      "description": "La configuración que da forma a esta tienda."
+    }
+  },
+  "roles": {
+    "owner": "Propietario",
+    "admin": "Administrador",
+    "cashier": "Ventas",
+    "viewer": "Solo lectura"
+  },
+  "orderStatus": {
+    "pending": "Pendiente",
+    "completed": "Completado",
+    "cancelled": "Cancelado"
+  },
+  "moduleNames": {
+    "catalog": "Catálogo de productos",
+    "inventory": "Control de inventario",
+    "orders": "Pedidos",
+    "mcp": "Conexión con agentes"
+  },
+  "units": {
+    "one": "{count} unidad",
+    "many": "{count} de unidades",
+    "other": "{count} unidades"
+  },
+  "overview": {
+    "metrics": {
+      "orders": {
+        "label": "Pedidos",
+        "note": {
+          "one": "{count} pendiente de coordinar",
+          "many": "{count} de pendientes de coordinar",
+          "other": "{count} pendientes de coordinar"
+        }
+      },
+      "revenue": {
+        "label": "Ingresos confirmados",
+        "note": "Solo pedidos completados"
+      },
+      "collection": {
+        "label": "En tu colección",
+        "note": {
+          "one": "{count} producto en total",
+          "many": "{count} de productos en total",
+          "other": "{count} productos en total"
+        }
+      },
+      "stock": {
+        "label": "Stock para revisar",
+        "note": "Productos con pocas unidades"
+      }
+    },
+    "recent": {
+      "title": "Últimos pedidos",
+      "subtitle": "Las novedades de tu tienda.",
+      "viewAll": "Ver todos",
+      "columns": {
+        "order": "Pedido",
+        "date": "Fecha",
+        "status": "Estado",
+        "total": "Total"
+      },
+      "items": {
+        "one": "{count} artículo",
+        "many": "{count} de artículos",
+        "other": "{count} artículos"
+      },
+      "empty": {
+        "title": "Tu próximo pedido empieza acá.",
+        "body": "Los pedidos de tu tienda aparecerán en este espacio.",
+        "action": "Explorar mi tienda"
+      }
+    },
+    "agentPromo": {
+      "eyebrow": "TU NUEVO COMPAÑERO",
+      "titleLine1": "Una conversación.",
+      "titleLine2": "Muchas tareas menos.",
+      "quote": "“¿Qué productos tienen poco stock?”",
+      "help": "Tu agente puede ayudarte con eso.",
+      "action": "Conectá tu asistente",
+      "compatible": "Compatible con clientes MCP remotos"
+    },
+    "lowStock": {
+      "title": "Atención a estos favoritos",
+      "subtitle": "Revisá la disponibilidad antes de la próxima venta.",
+      "empty": "Tu inventario está en orden.",
+      "review": "Revisar inventario"
+    },
+    "quickActions": {
+      "title": "Seguí construyendo",
+      "subtitle": "Pequeños pasos para tu próximo gran momento.",
+      "addProduct": {
+        "title": "Añadir un producto",
+        "body": "Dale algo nuevo a tu colección."
+      },
+      "brand": {
+        "title": "Revisar mi marca",
+        "body": "Una tienda que se sienta tuya."
+      },
+      "store": {
+        "title": "Ver mi tienda",
+        "body": "Mirala con los ojos de tus clientes."
+      }
+    }
+  },
+  "products": {
+    "search": {
+      "label": "Buscar productos en administración",
+      "placeholder": "Nombre, SKU o categoría"
+    },
+    "lowStock": "Stock bajo",
+    "newProduct": "Nuevo producto",
+    "columns": {
+      "product": "Producto",
+      "price": "Precio",
+      "inventory": "Inventario",
+      "status": "Estado",
+      "actions": "Acciones"
+    },
+    "status": {
+      "published": "Publicado",
+      "hidden": "Oculto"
+    },
+    "actions": {
+      "stock": "Stock",
+      "edit": "Editar"
+    },
+    "empty": {
+      "title": "No hay productos para mostrar.",
+      "body": "Añadí tu primer producto o probá otra búsqueda."
+    },
+    "footer": {
+      "one": "{shown} de {count} producto",
+      "many": "{shown} de {count} de productos",
+      "other": "{shown} de {count} productos"
+    }
+  },
+  "orders": {
+    "filters": {
+      "all": "Todos",
+      "pending": "Pendientes",
+      "completed": "Completados",
+      "cancelled": "Cancelados"
+    },
+    "count": {
+      "one": "{count} pedido",
+      "many": "{count} de pedidos",
+      "other": "{count} pedidos"
+    },
+    "columns": {
+      "order": "Pedido",
+      "date": "Fecha",
+      "items": "Artículos",
+      "status": "Estado",
+      "total": "Total"
+    },
+    "view": "Ver pedido",
+    "empty": {
+      "title": "Todavía no hay pedidos acá.",
+      "body": "Cuando llegue uno, vas a encontrar todos los detalles en este espacio."
+    },
+    "detail": {
+      "close": "Cerrar pedido",
+      "eyebrow": "DETALLE DEL PEDIDO",
+      "summary": "{date} · {status}",
+      "line": "{quantity} × {name}",
+      "total": "Total",
+      "customer": "Datos para coordinar",
+      "reference": "Referencia completa:",
+      "paymentManaged": {
+        "title": "Pago administrado por {provider}",
+        "body": "La pasarela confirma el pago y la expiración del intento. Este pedido no se puede confirmar ni cancelar manualmente desde este panel."
+      },
+      "cancel": "Cancelar pedido",
+      "confirm": "Confirmar pago recibido",
+      "saving": "Guardando…",
+      "confirmCompleted": "¿Confirmás que recibiste el pago y completaste este pedido? Se registrará como ingreso confirmado.",
+      "confirmCancelled": "¿Cancelar este pedido? Las unidades se devolverán al inventario. Esta acción no emite reembolsos.",
+      "updateFailed": "No se pudo actualizar el pedido."
+    }
+  },
+  "agents": {
+    "hero": {
+      "eyebrow": "MODEL CONTEXT PROTOCOL",
+      "title": "Tu tienda habla el idioma de tu agente.",
+      "body": "Usá un cliente compatible, como Claude o ChatGPT, para consultar productos, revisar pedidos y administrar el inventario con los permisos de tu cuenta.",
+      "badge": "MCP disponible"
+    },
+    "manageConnections": "Gestionar y revocar conexiones",
+    "steps": {
+      "title": "Conectalo en tres pasos",
+      "subtitle": "Usá la dirección pública de tu tienda desplegada.",
+      "open": {
+        "title": "Abrí las conexiones de tu asistente",
+        "body": "Buscá la opción de añadir un servidor MCP remoto o un conector personalizado. Su disponibilidad depende del cliente y de tu plan."
+      },
+      "paste": {
+        "title": "Pegá la dirección de tu tienda",
+        "loading": "Cargando dirección…",
+        "copy": "Copiar dirección MCP",
+        "copyFailed": "No se pudo copiar. Seleccioná y copiá la dirección manualmente.",
+        "note": "La dirección debe ser HTTPS y accesible desde internet."
+      },
+      "authorize": {
+        "title": "Autorizá tu cuenta y elegí permisos",
+        "body": "Iniciá sesión en tu tienda y revisá los permisos que solicita el agente. Las acciones quedan sujetas a tu rol."
+      },
+      "demoWarning": "Esta es una demostración local. Para conectar un asistente externo, desplegá la tienda con HTTPS y configurá la autenticación de producción."
+    },
+    "examples": {
+      "title": "Empezá con algo simple",
+      "subtitle": "Ideas para tu primera conversación.",
+      "prompts": {
+        "lowStock": "“Mostrame los productos con menos de 5 unidades.”",
+        "pendingOrders": "“¿Qué pedidos están pendientes?”",
+        "addStock": "“Añadí 10 unidades al producto con SKU NOMA-001.”"
+      },
+      "control": {
+        "title": "El control sigue siendo tuyo.",
+        "body": "Los cambios de inventario y catálogo requieren permisos de escritura. Pedile a tu agente que confirme los cambios antes de ejecutarlos."
+      }
+    }
+  },
+  "settings": {
+    "identity": {
+      "title": "Identidad de tu tienda",
+      "subtitle": "Configuración activa de este template.",
+      "readOnly": "Solo lectura",
+      "brandName": "Nombre de marca",
+      "description": "Descripción",
+      "defaultCurrency": "Moneda de referencia",
+      "language": "Idioma",
+      "availableLanguages": "Idiomas disponibles",
+      "payment": {
+        "label": "Modalidad de pago",
+        "value": "La opción disponible se muestra al confirmar el pedido."
+      },
+      "helpBefore": "Tu agente desarrollador puede personalizar estos valores en",
+      "helpAfter": "y desplegar los cambios. Los precios y el catálogo se administran desde Productos."
+    },
+    "modules": {
+      "title": "Módulos de negocio",
+      "subtitle": "Capacidades incluidas en esta tienda.",
+      "active": "Activo",
+      "off": "Desactivado",
+      "help": "La base de datos y el proveedor de autenticación se configuran durante el despliegue. Las credenciales se guardan exclusivamente en el servidor."
+    }
+  },
+  "editor": {
+    "eyebrow": "TU COLECCIÓN",
+    "newTitle": "Un nuevo favorito.",
+    "editTitle": "Cada detalle importa.",
+    "newBody": "Añadí un producto a tu tienda.",
+    "editBody": "Actualizá la información que ven tus clientes.",
+    "close": "Cerrar formulario",
+    "fields": {
+      "name": "Nombre del producto",
+      "namePlaceholder": "Ej. Camisa de lino",
+      "sku": "SKU",
+      "category": "Categoría",
+      "categoryPlaceholder": "Ropa",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Lo que hace especial a este producto…",
+      "price": "Precio",
+      "currency": "Moneda",
+      "initialStock": "Stock inicial",
+      "imageUrl": "URL de imagen",
+      "published": "Publicado y visible en la tienda"
+    },
+    "saving": "Guardando…",
+    "save": "Guardar cambios",
+    "create": "Crear producto",
+    "saveFailed": "No pudimos guardar el producto."
+  },
+  "stock": {
+    "close": "Cerrar inventario",
+    "eyebrow": "CONTROL DE INVENTARIO",
+    "title": "Ajustar disponibilidad.",
+    "current": {
+      "one": "{name} · {count} unidad actual",
+      "many": "{name} · {count} de unidades actuales",
+      "other": "{name} · {count} unidades actuales"
+    },
+    "fields": {
+      "delta": "Unidades a sumar o restar",
+      "deltaHint": "Usá un número negativo para retirar unidades.",
+      "reason": "Motivo del ajuste",
+      "reasonPlaceholder": "Ej. Reposición de proveedor",
+      "preview": "Stock después del ajuste"
+    },
+    "saving": "Guardando…",
+    "save": "Guardar ajuste",
+    "updateFailed": "No se pudo actualizar el inventario."
+  }
+}

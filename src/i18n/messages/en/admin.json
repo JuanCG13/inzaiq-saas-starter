@@ -1,1 +1,373 @@
-{}
+{
+  "shell": {
+    "navLabel": "Administration",
+    "workspaceLabel": "WORKSPACE",
+    "storeKind": "My online store",
+    "mcpBadge": "MCP",
+    "agentCard": {
+      "title": "An assistant by your side",
+      "body": "Check on your business through a conversation.",
+      "action": "Connect my agent"
+    },
+    "visitStore": "Visit my store",
+    "profile": {
+      "fallbackName": "Your account",
+      "fallbackRole": "Protected access",
+      "demoName": "Demo administrator"
+    },
+    "breadcrumbRoot": "My store",
+    "connection": {
+      "demo": "Demo",
+      "workspace": "Workspace"
+    },
+    "viewStore": "View store",
+    "demoBanner": "Demo mode. Changes are saved in this test environment; no payments are processed.",
+    "refresh": "Refresh data",
+    "loading": "Getting your space ready…",
+    "retry": "Try again",
+    "signInPrompt": {
+      "title": "Your business has its own space.",
+      "action": "Sign in"
+    },
+    "agentsDisabled": {
+      "title": "Agent module turned off.",
+      "body": "Your developer agent can enable it from the template settings."
+    },
+    "loadMore": {
+      "loading": "Loading…",
+      "action": "Load more",
+      "status": "Showing {count} records. More results are available."
+    },
+    "footer": {
+      "tagline": "{brand} · A simpler business.",
+      "access": "Role-based access"
+    },
+    "notices": {
+      "orderUpdated": "Order updated.",
+      "productSaved": "Product saved.",
+      "inventoryUpdated": "Inventory updated."
+    },
+    "errors": {
+      "refresh": "We couldn't refresh your business.",
+      "signIn": "Sign in to manage your store."
+    }
+  },
+  "nav": {
+    "overview": "Overview",
+    "products": "Products",
+    "orders": "Orders",
+    "agents": "My agent",
+    "settings": "Settings"
+  },
+  "views": {
+    "overview": {
+      "eyebrow": "YOUR BUSINESS, AT A GLANCE",
+      "title": "Everything in its place.",
+      "description": "Fewer tasks. More time to grow your brand."
+    },
+    "products": {
+      "eyebrow": "YOUR COLLECTION",
+      "title": "Every detail counts.",
+      "description": "Products, prices and availability, always up to date."
+    },
+    "orders": {
+      "eyebrow": "FROM THE BAG TO YOUR BUSINESS",
+      "title": "Every order, one step closer.",
+      "description": "Review orders and arrange payment with your customers."
+    },
+    "agents": {
+      "eyebrow": "A NEW WAY TO WORK",
+      "title": "Your business. Your agent.",
+      "description": "Connect your assistant to check on and manage your store."
+    },
+    "settings": {
+      "eyebrow": "MAKE IT YOURS",
+      "title": "The essence of your brand.",
+      "description": "The settings that shape this store."
+    }
+  },
+  "roles": {
+    "owner": "Owner",
+    "admin": "Administrator",
+    "cashier": "Sales",
+    "viewer": "Read-only"
+  },
+  "orderStatus": {
+    "pending": "Pending",
+    "completed": "Completed",
+    "cancelled": "Cancelled"
+  },
+  "moduleNames": {
+    "catalog": "Product catalog",
+    "inventory": "Inventory control",
+    "orders": "Orders",
+    "mcp": "Agent connection"
+  },
+  "units": {
+    "one": "{count} unit",
+    "other": "{count} units"
+  },
+  "overview": {
+    "metrics": {
+      "orders": {
+        "label": "Orders",
+        "note": {
+          "one": "{count} waiting to be arranged",
+          "other": "{count} waiting to be arranged"
+        }
+      },
+      "revenue": {
+        "label": "Confirmed revenue",
+        "note": "Completed orders only"
+      },
+      "collection": {
+        "label": "In your collection",
+        "note": {
+          "one": "{count} product in total",
+          "other": "{count} products in total"
+        }
+      },
+      "stock": {
+        "label": "Stock to review",
+        "note": "Products running low"
+      }
+    },
+    "recent": {
+      "title": "Latest orders",
+      "subtitle": "What's new in your store.",
+      "viewAll": "View all",
+      "columns": {
+        "order": "Order",
+        "date": "Date",
+        "status": "Status",
+        "total": "Total"
+      },
+      "items": {
+        "one": "{count} item",
+        "other": "{count} items"
+      },
+      "empty": {
+        "title": "Your next order starts here.",
+        "body": "Your store's orders will show up here.",
+        "action": "Explore my store"
+      }
+    },
+    "agentPromo": {
+      "eyebrow": "YOUR NEW COMPANION",
+      "titleLine1": "One conversation.",
+      "titleLine2": "A lot fewer tasks.",
+      "quote": "“Which products are running low?”",
+      "help": "Your agent can help you with that.",
+      "action": "Connect your assistant",
+      "compatible": "Works with remote MCP clients"
+    },
+    "lowStock": {
+      "title": "Keep an eye on these favorites",
+      "subtitle": "Check availability before the next sale.",
+      "empty": "Your inventory is in good shape.",
+      "review": "Review inventory"
+    },
+    "quickActions": {
+      "title": "Keep building",
+      "subtitle": "Small steps toward your next big moment.",
+      "addProduct": {
+        "title": "Add a product",
+        "body": "Give your collection something new."
+      },
+      "brand": {
+        "title": "Review my brand",
+        "body": "A store that feels like yours."
+      },
+      "store": {
+        "title": "View my store",
+        "body": "See it through your customers' eyes."
+      }
+    }
+  },
+  "products": {
+    "search": {
+      "label": "Search products in admin",
+      "placeholder": "Name, SKU or category"
+    },
+    "lowStock": "Low stock",
+    "newProduct": "New product",
+    "columns": {
+      "product": "Product",
+      "price": "Price",
+      "inventory": "Inventory",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "published": "Published",
+      "hidden": "Hidden"
+    },
+    "actions": {
+      "stock": "Stock",
+      "edit": "Edit"
+    },
+    "empty": {
+      "title": "No products to show.",
+      "body": "Add your first product or try a different search."
+    },
+    "footer": {
+      "one": "{shown} of {count} product",
+      "other": "{shown} of {count} products"
+    }
+  },
+  "orders": {
+    "filters": {
+      "all": "All",
+      "pending": "Pending",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "count": {
+      "one": "{count} order",
+      "other": "{count} orders"
+    },
+    "columns": {
+      "order": "Order",
+      "date": "Date",
+      "items": "Items",
+      "status": "Status",
+      "total": "Total"
+    },
+    "view": "View order",
+    "empty": {
+      "title": "No orders here yet.",
+      "body": "When one arrives, you'll find every detail here."
+    },
+    "detail": {
+      "close": "Close order",
+      "eyebrow": "ORDER DETAILS",
+      "summary": "{date} · {status}",
+      "line": "{quantity} × {name}",
+      "total": "Total",
+      "customer": "Contact details",
+      "reference": "Full reference:",
+      "paymentManaged": {
+        "title": "Payment managed by {provider}",
+        "body": "The payment gateway confirms the payment and when the attempt expires. This order can't be confirmed or cancelled manually from this panel."
+      },
+      "cancel": "Cancel order",
+      "confirm": "Confirm payment received",
+      "saving": "Saving…",
+      "confirmCompleted": "Do you confirm that you received the payment and completed this order? It will be recorded as confirmed revenue.",
+      "confirmCancelled": "Cancel this order? The units will be returned to inventory. This action does not issue refunds.",
+      "updateFailed": "The order couldn't be updated."
+    }
+  },
+  "agents": {
+    "hero": {
+      "eyebrow": "MODEL CONTEXT PROTOCOL",
+      "title": "Your store speaks your agent's language.",
+      "body": "Use a compatible client, such as Claude or ChatGPT, to look up products, review orders and manage inventory with your account's permissions.",
+      "badge": "MCP available"
+    },
+    "manageConnections": "Manage and revoke connections",
+    "steps": {
+      "title": "Connect it in three steps",
+      "subtitle": "Use the public address of your deployed store.",
+      "open": {
+        "title": "Open your assistant's connections",
+        "body": "Look for the option to add a remote MCP server or a custom connector. Availability depends on the client and your plan."
+      },
+      "paste": {
+        "title": "Paste your store's address",
+        "loading": "Loading address…",
+        "copy": "Copy MCP address",
+        "copyFailed": "Couldn't copy. Select the address and copy it manually.",
+        "note": "The address must be HTTPS and reachable from the internet."
+      },
+      "authorize": {
+        "title": "Authorize your account and choose permissions",
+        "body": "Sign in to your store and review the permissions the agent requests. Actions are limited by your role."
+      },
+      "demoWarning": "This is a local demo. To connect an external assistant, deploy the store with HTTPS and set up production authentication."
+    },
+    "examples": {
+      "title": "Start with something simple",
+      "subtitle": "Ideas for your first conversation.",
+      "prompts": {
+        "lowStock": "“Show me the products with fewer than 5 units.”",
+        "pendingOrders": "“Which orders are pending?”",
+        "addStock": "“Add 10 units to the product with SKU NOMA-001.”"
+      },
+      "control": {
+        "title": "You stay in control.",
+        "body": "Inventory and catalog changes require write permissions. Ask your agent to confirm changes before it makes them."
+      }
+    }
+  },
+  "settings": {
+    "identity": {
+      "title": "Your store's identity",
+      "subtitle": "The active settings of this template.",
+      "readOnly": "Read-only",
+      "brandName": "Brand name",
+      "description": "Description",
+      "defaultCurrency": "Default currency",
+      "language": "Language",
+      "availableLanguages": "Available languages",
+      "payment": {
+        "label": "Payment mode",
+        "value": "The available option is shown when the order is placed."
+      },
+      "helpBefore": "Your developer agent can customize these values in",
+      "helpAfter": "and deploy the changes. Prices and the catalog are managed from Products."
+    },
+    "modules": {
+      "title": "Business modules",
+      "subtitle": "Capabilities included in this store.",
+      "active": "Active",
+      "off": "Off",
+      "help": "The database and the authentication provider are configured during deployment. Credentials are stored on the server only."
+    }
+  },
+  "editor": {
+    "eyebrow": "YOUR COLLECTION",
+    "newTitle": "A new favorite.",
+    "editTitle": "Every detail matters.",
+    "newBody": "Add a product to your store.",
+    "editBody": "Update the information your customers see.",
+    "close": "Close form",
+    "fields": {
+      "name": "Product name",
+      "namePlaceholder": "E.g. Linen shirt",
+      "sku": "SKU",
+      "category": "Category",
+      "categoryPlaceholder": "Clothing",
+      "description": "Description",
+      "descriptionPlaceholder": "What makes this product special…",
+      "price": "Price",
+      "currency": "Currency",
+      "initialStock": "Initial stock",
+      "imageUrl": "Image URL",
+      "published": "Published and visible in the store"
+    },
+    "saving": "Saving…",
+    "save": "Save changes",
+    "create": "Create product",
+    "saveFailed": "We couldn't save the product."
+  },
+  "stock": {
+    "close": "Close inventory",
+    "eyebrow": "INVENTORY CONTROL",
+    "title": "Adjust availability.",
+    "current": {
+      "one": "{name} · {count} unit currently in stock",
+      "other": "{name} · {count} units currently in stock"
+    },
+    "fields": {
+      "delta": "Units to add or remove",
+      "deltaHint": "Use a negative number to remove units.",
+      "reason": "Reason for the adjustment",
+      "reasonPlaceholder": "E.g. Supplier restock",
+      "preview": "Stock after the adjustment"
+    },
+    "saving": "Saving…",
+    "save": "Save adjustment",
+    "updateFailed": "Inventory couldn't be updated."
+  }
+}

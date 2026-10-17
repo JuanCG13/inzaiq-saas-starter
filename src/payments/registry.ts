@@ -10,7 +10,7 @@ export function getPaymentProvider(id: string): PaymentProvider;
 export function getPaymentProvider(id?: string): PaymentProvider | null {
   const configured = id ?? process.env.PAYMENT_PROVIDER ?? 'manual';
   if (configured === 'manual' && id === undefined) return null;
-  if (configured !== 'stripe') throw new AppError('PAYMENT_PROVIDER_UNSUPPORTED', 'La pasarela solicitada no está habilitada.', 503);
+  if (configured !== 'stripe') throw new AppError('PAYMENT_PROVIDER_UNSUPPORTED', 'The requested payment gateway is not enabled.', 503);
   return stripe ??= new StripePaymentProvider({
     secretKey: process.env.STRIPE_SECRET_KEY ?? '',
     webhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? '',

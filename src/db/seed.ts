@@ -1,30 +1,53 @@
 import type { Kysely } from 'kysely';
 import type { Database } from './schema';
 import { AppError, type Actor, type CreateProductInput, createCommerceService } from '../core';
+import { isSupportedCurrency } from '../i18n/config';
+import { currencyFactor } from '../i18n/format';
+import { templateConfig } from '../template.config';
 
-const catalog: CreateProductInput[] = [
-  { sku: 'NOMA-TEE-01', name: 'Camiseta esencial', description: 'Algodón suave. Una pieza para todos los días.', category: 'Ropa', priceMinor: 2900, currency: 'USD', stock: 48, imageUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80' },
-  { sku: 'NOMA-BAG-01', name: 'Mochila urbana', description: 'Espacio para llevar lo que importa.', category: 'Bolsos', priceMinor: 7900, currency: 'USD', stock: 18, imageUrl: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&q=80' },
-  { sku: 'NOMA-SHOE-01', name: 'Zapatillas de diario', description: 'Líneas simples. Comodidad todo el día.', category: 'Accesorios', priceMinor: 8900, currency: 'USD', stock: 24, imageUrl: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&q=80' },
-  { sku: 'NOMA-LAMP-01', name: 'Lámpara de mesa', description: 'Un detalle de luz para tu espacio.', category: 'Hogar', priceMinor: 6500, currency: 'USD', stock: 8, imageUrl: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=800&q=80' },
-  { sku: 'NOMA-KNIT-01', name: 'Suéter de punto', description: 'Textura cálida y silueta relajada.', category: 'Ropa', priceMinor: 5900, currency: 'USD', stock: 4, imageUrl: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800&q=80' },
-  { sku: 'NOMA-CHAIR-01', name: 'Silla de diseño', description: 'Una pausa cómoda, en cualquier rincón.', category: 'Hogar', priceMinor: 14900, currency: 'USD', stock: 6, imageUrl: 'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=800&q=80' },
+/** A demo product priced in major units (29 means 29.00 of the seed currency). */
+type DemoProduct = Omit<CreateProductInput, 'priceMinor' | 'currency'> & { price: number };
+export type DemoVariant = 'ecommerce' | 'pos';
+
+// Demo catalogs are written in English, the default interface language. Product text is data, so
+// it is not part of the message catalogs. Images are first-party SVGs served from public/demo.
+const catalog: readonly DemoProduct[] = [
+  { sku: 'NOMA-TEE-01', name: 'Essential tee', description: 'Soft cotton. A piece for every day.', category: 'Clothing', price: 29, stock: 48, imageUrl: '/demo/tee.svg' },
+  { sku: 'NOMA-BAG-01', name: 'Urban backpack', description: 'Room for everything that matters.', category: 'Bags', price: 79, stock: 18, imageUrl: '/demo/backpack.svg' },
+  { sku: 'NOMA-SHOE-01', name: 'Everyday sneakers', description: 'Clean lines. All-day comfort.', category: 'Accessories', price: 89, stock: 24, imageUrl: '/demo/sneakers.svg' },
+  { sku: 'NOMA-LAMP-01', name: 'Table lamp', description: 'A touch of light for your space.', category: 'Home', price: 65, stock: 8, imageUrl: '/demo/lamp.svg' },
+  { sku: 'NOMA-KNIT-01', name: 'Knit sweater', description: 'Warm texture and a relaxed fit.', category: 'Clothing', price: 59, stock: 4, imageUrl: '/demo/sweater.svg' },
+  { sku: 'NOMA-CHAIR-01', name: 'Design chair', description: 'A comfortable pause, in any corner.', category: 'Home', price: 149, stock: 6, imageUrl: '/demo/chair.svg' },
 ];
-const posCatalog: CreateProductInput[] = [
-  { sku: 'DES-001', name: 'Yerba mate 1 kg', category: 'Despensa', description: 'Paquete de un kilogramo.', priceMinor: 32000, currency: 'PYG', stock: 30 },
-  { sku: 'DES-002', name: 'Arroz 1 kg', category: 'Despensa', description: 'Arroz largo fino.', priceMinor: 8500, currency: 'PYG', stock: 50 },
-  { sku: 'BEB-001', name: 'Agua mineral 500 ml', category: 'Bebidas', priceMinor: 4500, currency: 'PYG', stock: 48 },
-  { sku: 'ROP-001', name: 'Camiseta esencial', category: 'Ropa', priceMinor: 65000, currency: 'PYG', stock: 16, imageUrl: catalog[0]!.imageUrl },
-  { sku: 'ACC-001', name: 'Mochila urbana', category: 'Accesorios', priceMinor: 180000, currency: 'PYG', stock: 4, imageUrl: catalog[1]!.imageUrl },
-  { sku: 'LIM-001', name: 'Detergente 750 ml', category: 'Limpieza', priceMinor: 12000, currency: 'PYG', stock: 20 },
+const posCatalog: readonly DemoProduct[] = [
+  { sku: 'DES-001', name: 'Ground coffee 1 kg', category: 'Pantry', description: 'One-kilogram bag.', price: 12.5, stock: 30 },
+  { sku: 'DES-002', name: 'Long-grain rice 1 kg', category: 'Pantry', description: 'Long-grain white rice.', price: 2.8, stock: 50 },
+  { sku: 'BEB-001', name: 'Mineral water 500 ml', category: 'Beverages', price: 1.2, stock: 48 },
+  { sku: 'ROP-001', name: 'Essential tee', category: 'Clothing', price: 29, stock: 16, imageUrl: '/demo/tee.svg' },
+  { sku: 'ACC-001', name: 'Urban backpack', category: 'Accessories', price: 79, stock: 4, imageUrl: '/demo/backpack.svg' },
+  { sku: 'LIM-001', name: 'Laundry detergent 750 ml', category: 'Cleaning', price: 6.5, stock: 20 },
 ];
+
+/**
+ * Demo products with prices in integer minor units of `currency` (the installation's currency by
+ * default). Each price is a major-unit amount times the currency's factor, so two-decimal
+ * currencies keep the intended amounts (USD 29.00 = 2900) and three-decimal ones scale to 29000.
+ * Zero-decimal currencies (JPY, PYG, ...) have factor 1, so the same numbers become small
+ * amounts: demo data only, never a realistic price list for that currency.
+ */
+export function demoCatalog(variant: DemoVariant = 'ecommerce', currency: string = templateConfig.currency): CreateProductInput[] {
+  if (!isSupportedCurrency(currency)) throw new AppError('INVALID_INPUT', 'Demo currency must be a supported ISO 4217 code such as USD.');
+  const factor = currencyFactor(currency);
+  return (variant === 'pos' ? posCatalog : catalog).map(({ price, ...product }) => ({ ...product, priceMinor: Math.round(price * factor), currency }));
+}
 
 /** Explicit development setup only. Never seeds on application boot or overwrites stock. */
-export async function seedDemo(db: Kysely<Database>, actor: Actor, variant: 'ecommerce' | 'pos' = 'ecommerce'): Promise<void> {
+export async function seedDemo(db: Kysely<Database>, actor: Actor, variant: DemoVariant = 'ecommerce', currency: string = templateConfig.currency): Promise<void> {
   if (process.env.NODE_ENV === 'production') throw new AppError('DEMO_DISABLED', 'Demo seeding is disabled in production.', 403);
   if (actor.role !== 'owner') throw new AppError('FORBIDDEN', 'Demo setup requires an owner.', 403);
+  const products = demoCatalog(variant, currency);
   const service = createCommerceService(db);
-  for (const input of variant === 'pos' ? posCatalog : catalog) {
+  for (const input of products) {
     const existing = await db.selectFrom('commerce_products').select('id').where('tenant_id', '=', actor.tenantId).where('sku', '=', input.sku).executeTakeFirst();
     if (!existing) await service.createProduct(actor, input);
   }

@@ -15,6 +15,6 @@ export async function requestActor(request:Request):Promise<Actor> {
 }
 export function storeActor():Actor {
   const tenantId=process.env.STORE_TENANT_ID;
-  if(!tenantId) throw new AppError('STORE_NOT_CONFIGURED','La tienda todavía no está configurada.',503);
+  if(!tenantId) throw new AppError('STORE_NOT_CONFIGURED','The store is not configured yet.',503);
   return {userId:'storefront',tenantId,role:'cashier',scopes:['products:read','orders:write']};
 }

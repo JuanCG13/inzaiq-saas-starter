@@ -6,8 +6,8 @@ export const runtime = 'nodejs';
 export function GET(request: Request) {
   return route(request, 'api.store.payment.options', '/api/store/payment-options', async () => {
     requireModule('orders');
-    if (templateConfig.kind !== 'ecommerce') throw new AppError('MODULE_DISABLED', 'Tienda pública no habilitada.', 404);
+    if (templateConfig.kind !== 'ecommerce') throw new AppError('MODULE_DISABLED', 'The public store is not enabled.', 404);
     const provider = getPaymentProvider();
-    return provider ? { provider: provider.id, label: provider.id === 'stripe' ? 'Pago seguro con Stripe' : 'Pago online', mode: 'redirect' } : { provider: 'manual', label: 'Pago a coordinar', mode: 'manual' };
+    return provider ? { provider: provider.id, label: provider.id === 'stripe' ? 'Secure payment with Stripe' : 'Online payment', mode: 'redirect' } : { provider: 'manual', label: 'Payment to be arranged', mode: 'manual' };
   });
 }

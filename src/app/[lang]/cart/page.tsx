@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { ArrowLeft, ArrowRight, Check, Minus, Plus, ShieldCheck, ShoppingBag, Trash2 } from "lucide-react";
 import { api, ApiError } from "@/lib/api-client";
 import { RuntimeNotice } from "@/runtime/components";
@@ -10,10 +9,16 @@ import { templateConfig } from "@/template.config";
 import { useCart } from "@/components/cart-provider";
 import { StoreFooter, StoreHeader } from "@/components/store-header";
 import { ProductImage } from "@/components/product-image";
-import { money, errorMessage, type Order, type Product } from "@/components/types";
-import { checkoutRedirectUrl, checkoutStorageKey, clearAttempt, parseSavedAttempt, persistAttempt, saveableAttempt, type CheckoutPayload, type CheckoutRecovery, type PaymentOption, type SavedCheckoutAttempt } from "@/components/checkout-attempt";
+import type { Order, Product } from "@/components/types";
+import { CheckoutAttemptError, checkoutErrorKey, checkoutRedirectUrl, checkoutStorageKey, clearAttempt, parseSavedAttempt, persistAttempt, saveableAttempt, type CheckoutPayload, type CheckoutRecovery, type PaymentOption, type SavedCheckoutAttempt } from "@/components/checkout-attempt";
+import { LocaleLink } from "@/i18n/link";
+import { useErrorMessage, useFormat, useT } from "@/i18n/provider";
+import { defaultCurrency } from "@/i18n/runtime";
 
 export default function CartPage() {
+  const t = useT("cart");
+  const errorMessage = useErrorMessage();
+  const { money } = useFormat();
   const { items, count, ready, change, clear, settle, reconcile } = useCart();
   const [submitting, setSubmitting] = useState(false);
   const [runtimeSettings, setRuntimeSettings] = useState<RuntimeSettings | null>(null);
@@ -24,7 +29,8 @@ export default function CartPage() {
   const [refreshed, setRefreshed] = useState(false);
   const [paymentOption, setPaymentOption] = useState<PaymentOption | null>(null);
   const [paymentLoading, setPaymentLoading] = useState(true);
-  const [paymentError, setPaymentError] = useState("");
+  // The failure is kept raw and worded at render time, so the effect below never depends on the translator.
+  const [paymentFailure, setPaymentFailure] = useState<{ error: unknown } | null>(null);
   const [paymentRetry, setPaymentRetry] = useState(0);
   const [attempt, setAttempt] = useState<SavedCheckoutAttempt | null>(null);
   const [attemptLoaded, setAttemptLoaded] = useState(false);
@@ -33,10 +39,20 @@ export default function CartPage() {
   const submittedPayload = useRef<CheckoutPayload | null>(null);
   const idempotencyKey = useRef<string | null>(null);
   const submittingRef = useRef(false);
-  const currency = items[0]?.product.currency || "USD";
+  const currency = items[0]?.product.currency || defaultCurrency;
   const mixedCurrency = items.some(item => item.product.currency !== currency);
   const total = items.reduce((sum, item) => sum + item.product.priceMinor * item.quantity, 0);
   const locked = submitting || refreshing || !!attempt || attemptCorrupt;
+
+  /** Customer-facing text for a failure: our own coded errors first, then the API error code, then the translated fallback. */
+  function describe(failure: unknown, fallback?: string) {
+    const key = checkoutErrorKey(failure);
+    return key ? t(key) : errorMessage(failure, fallback);
+  }
+
+  const paymentError = !paymentFailure ? ""
+    : paymentFailure.error instanceof ApiError && paymentFailure.error.status === 404 ? t("failures.storeUpdating")
+    : describe(paymentFailure.error, t("failures.paymentOptions"));
 
   useEffect(() => {
     try {
@@ -50,11 +66,11 @@ export default function CartPage() {
 
   useEffect(() => {
     const controller = new AbortController();
-    setPaymentLoading(true); setPaymentError("");
+    setPaymentLoading(true); setPaymentFailure(null);
     api<PaymentOption>("/api/store/payment-options", { signal: controller.signal }).then(option => {
-      if ((option.provider !== "manual" && option.provider !== "stripe") || (option.mode !== "manual" && option.mode !== "redirect")) throw new Error("La modalidad de pago no está disponible.");
+      if ((option.provider !== "manual" && option.provider !== "stripe") || (option.mode !== "manual" && option.mode !== "redirect")) throw new CheckoutAttemptError("PAYMENT_MODE_UNAVAILABLE");
       setPaymentOption(option);
-    }).catch(err => { if (!controller.signal.aborted) setPaymentError(err instanceof ApiError && err.status === 404 ? "La tienda se está actualizando. Recargá esta página antes de confirmar un pedido." : errorMessage(err, "No pudimos consultar los medios de pago.")); })
+    }).catch(err => { if (!controller.signal.aborted) setPaymentFailure({ error: err }); })
       .finally(() => { if (!controller.signal.aborted) setPaymentLoading(false); });
     return () => controller.abort();
   }, [paymentRetry]);
@@ -71,7 +87,7 @@ export default function CartPage() {
         catch (err) { if (err instanceof ApiError && err.status === 404) return { id: item.product.id, product: null }; throw err; }
       }));
       reconcile(updates); setRefreshed(true);
-    } catch (err) { setError(errorMessage(err)); } finally { setRefreshing(false); }
+    } catch (err) { setError(describe(err)); } finally { setRefreshing(false); }
   }
 
   async function resumeCheckout() {
@@ -94,11 +110,11 @@ export default function CartPage() {
         // Reuse this identity if the original transaction is merely delayed.
         idempotencyKey.current = attempt.idempotencyKey;
         releaseAttempt();
-        setError("No encontramos un pedido confirmado. Revisá tus datos y volvé a enviar; conservamos la misma referencia para evitar duplicados.");
+        setError(t("failures.orderNotFound"));
       } else {
-        setError("Tu pedido sigue en verificación. Esperá un momento y volvé a consultar antes de crear otro.");
+        setError(t("failures.stillVerifying"));
       }
-    } catch (err) { setError(errorMessage(err, "No pudimos verificar el intento. Conservamos tu bolsa y la misma referencia.")); }
+    } catch (err) { setError(describe(err, t("failures.resumeFailed"))); }
     finally { submittingRef.current = false; setSubmitting(false); }
   }
 
@@ -112,7 +128,7 @@ export default function CartPage() {
     };
     const saved = saveableAttempt(payload, paymentOption.provider);
     try {
-      try { persistAttempt(saved); } catch { throw new Error("Necesitamos el almacenamiento de esta pestaña para recuperar tu pedido de forma segura. Habilitalo y volvé a intentar."); }
+      try { persistAttempt(saved); } catch { throw new CheckoutAttemptError("STORAGE_UNAVAILABLE"); }
       submittedPayload.current = payload; setAttempt(saved);
       const data = await api<{ order: Order; checkout?: { kind: "redirect"; url: string } }>("/api/store/orders", { method: "POST", headers: { "x-checkout-protocol": "hosted-v1" }, body: JSON.stringify(payload) });
       if (data.checkout?.kind === "redirect") {
@@ -121,47 +137,48 @@ export default function CartPage() {
         window.location.assign(url);
         return;
       }
-      if (paymentOption.mode === "redirect" || data.order.paymentProvider) throw new Error("Tu pedido está registrado, pero todavía no recibimos una dirección de pago. Usá Retomar pago para consultar el mismo intento.");
+      if (paymentOption.mode === "redirect" || data.order.paymentProvider) throw new CheckoutAttemptError("PAYMENT_URL_MISSING");
       setReceipt(data.order); releaseAttempt(); clear(); idempotencyKey.current = null;
     } catch (err) {
       // An unknown response can follow a committed order. Never create a second identity here.
-      setError(errorMessage(err, "No pudimos confirmar el resultado. Conservamos tu bolsa para recuperar el mismo pedido."));
+      setError(describe(err, t("failures.submitFailed")));
     } finally { submittingRef.current = false; setSubmitting(false); }
   }
 
   const recoveredReceipt = recoveredState === "completed" || recoveredState === "manual_received";
+  const paymentLabel = paymentLoading ? t("payment.loading") : paymentOption ? t(paymentOption.provider === "stripe" ? "payment.method.stripe" : "payment.method.manual") : t("payment.unavailable");
   return <>
     <StoreHeader />
     <RuntimeNotice onSettingsChange={setRuntimeSettings} />
     <main id="main-content" className="section-container cart-page">
-      <Link href="/#collection" className="back-link"><ArrowLeft size={15} /> Seguir explorando</Link>
+      <LocaleLink href="/#collection" className="back-link"><ArrowLeft size={15} /> {t("backLink")}</LocaleLink>
       {receipt ? <section className="receipt">
-        <span className="receipt-check"><Check size={30} /></span><div className="eyebrow">PEDIDO RECIBIDO</div><h1>Ya es casi tuyo.</h1>
-        <p>Guardamos tu pedido. El pago y la entrega quedan pendientes de coordinación con la tienda.</p>
-        <div className="receipt-details"><span>Referencia<strong>{receipt.id}</strong></span><span>Estado<strong>Pendiente de pago</strong></span><span>Total<strong>{money(receipt.totalMinor, receipt.currency)}</strong></span></div>
-        <p className="muted-text">Conservá esta referencia para consultar tu pedido. No se realizó ningún cobro.</p>
-        <Link href="/#collection" className="button primary">Volver a la colección <ArrowRight size={16} /></Link>
+        <span className="receipt-check"><Check size={30} /></span><div className="eyebrow">{t("receipt.eyebrow")}</div><h1>{t("receipt.title")}</h1>
+        <p>{t("receipt.body")}</p>
+        <div className="receipt-details"><span>{t("receipt.reference")}<strong>{receipt.id}</strong></span><span>{t("receipt.status")}<strong>{t("receipt.statusPending")}</strong></span><span>{t("receipt.total")}<strong>{money(receipt.totalMinor, receipt.currency)}</strong></span></div>
+        <p className="muted-text">{t("receipt.note")}</p>
+        <LocaleLink href="/#collection" className="button primary">{t("actions.backToCollection")} <ArrowRight size={16} /></LocaleLink>
       </section> : recoveredReceipt ? <section className="receipt">
-        <span className="receipt-check"><Check size={30} /></span><div className="eyebrow">ESTADO VERIFICADO</div><h1>{recoveredState === "completed" ? "Pago confirmado." : "Pedido recibido."}</h1>
-        <p>{recoveredState === "completed" ? "El servidor confirmó el pago de este intento. La tienda coordinará la entrega." : "Tu pedido ya estaba guardado. El pago manual y la entrega quedan a coordinar con la tienda."}</p>
-        <p className="muted-text">Recuperamos el pedido original sin crear otro.</p><Link href="/#collection" className="button primary">Volver a la colección <ArrowRight size={16} /></Link>
+        <span className="receipt-check"><Check size={30} /></span><div className="eyebrow">{t("recovered.eyebrow")}</div><h1>{recoveredState === "completed" ? t("recovered.confirmedTitle") : t("recovered.receivedTitle")}</h1>
+        <p>{recoveredState === "completed" ? t("recovered.confirmedBody") : t("recovered.receivedBody")}</p>
+        <p className="muted-text">{t("recovered.note")}</p><LocaleLink href="/#collection" className="button primary">{t("actions.backToCollection")} <ArrowRight size={16} /></LocaleLink>
       </section> : <>
-        <div className="section-heading"><div><div className="eyebrow">TUS ELEGIDOS</div><h1>Mi bolsa<span>.</span></h1></div><span className="muted-text">{count} {count === 1 ? "artículo" : "artículos"}</span></div>
-        {recoveredState === "cancelled" ? <p className="cart-refreshed" role="status">El intento anterior ya está cerrado. Revisá precios y disponibilidad antes de crear un nuevo pedido. Si viste un cargo en tu banco, consultá con la tienda.</p> : null}
-        {attemptCorrupt ? <p className="form-error" role="alert">No pudimos recuperar la referencia del pago anterior. Contactá a la tienda antes de enviar otro pedido.</p> : null}
-        {!ready || !attemptLoaded ? <div className="empty-state" role="status">Cargando tu bolsa…</div> : !items.length && !attempt ? <div className="empty-state cart-empty"><ShoppingBag size={40} strokeWidth={1.3} /><h2>Acá empieza algo bueno.</h2><p>Tu bolsa todavía está vacía. Encontrá eso que va con vos.</p><Link className="button primary" href="/#collection">Explorar colección <ArrowRight size={16} /></Link></div> : <div className="cart-layout">
+        <div className="section-heading"><div><div className="eyebrow">{t("heading.eyebrow")}</div><h1>{t("heading.title")}<span>.</span></h1></div><span className="muted-text">{t("heading.itemCount", { count })}</span></div>
+        {recoveredState === "cancelled" ? <p className="cart-refreshed" role="status">{t("recovery.cancelledNotice")}</p> : null}
+        {attemptCorrupt ? <p className="form-error" role="alert">{t("recovery.corruptNotice")}</p> : null}
+        {!ready || !attemptLoaded ? <div className="empty-state" role="status">{t("loading")}</div> : !items.length && !attempt ? <div className="empty-state cart-empty"><ShoppingBag size={40} strokeWidth={1.3} /><h2>{t("empty.title")}</h2><p>{t("empty.body")}</p><LocaleLink className="button primary" href="/#collection">{t("empty.action")} <ArrowRight size={16} /></LocaleLink></div> : <div className="cart-layout">
           <div className="cart-items">{items.map(({ product, quantity }) => <article className="cart-item" key={product.id}>
-            <ProductImage src={product.imageUrl} alt={product.name} className="cart-item-image" /><div className="cart-item-info"><span className="product-category">{product.category}</span><h2>{product.name}</h2><span>{money(product.priceMinor, product.currency)}</span><div className="quantity-stepper"><button aria-label={`Reducir cantidad de ${product.name}`} disabled={locked} onClick={() => change(product.id, quantity - 1)}><Minus size={13} /></button><span aria-label="Cantidad">{quantity}</span><button aria-label={`Aumentar cantidad de ${product.name}`} disabled={locked || quantity >= product.stock || quantity >= 99} onClick={() => change(product.id, quantity + 1)}><Plus size={13} /></button></div></div><div className="cart-item-end"><strong>{money(product.priceMinor * quantity, product.currency)}</strong><button className="icon-button" aria-label={`Eliminar ${product.name}`} disabled={locked} onClick={() => change(product.id, 0)}><Trash2 size={16} /></button></div>
+            <ProductImage src={product.imageUrl} alt={product.name} className="cart-item-image" /><div className="cart-item-info"><span className="product-category">{product.category}</span><h2>{product.name}</h2><span>{money(product.priceMinor, product.currency)}</span><div className="quantity-stepper"><button aria-label={t("item.decrease", { name: product.name })} disabled={locked} onClick={() => change(product.id, quantity - 1)}><Minus size={13} /></button><span aria-label={t("item.quantity")}>{quantity}</span><button aria-label={t("item.increase", { name: product.name })} disabled={locked || quantity >= product.stock || quantity >= 99} onClick={() => change(product.id, quantity + 1)}><Plus size={13} /></button></div></div><div className="cart-item-end"><strong>{money(product.priceMinor * quantity, product.currency)}</strong><button className="icon-button" aria-label={t("item.remove", { name: product.name })} disabled={locked} onClick={() => change(product.id, 0)}><Trash2 size={16} /></button></div>
           </article>)}</div>
           <aside className="cart-summary">
-            {attempt ? <div className="checkout-recovery" aria-live="polite"><ShieldCheck size={26} /><h2>Continuemos el mismo pedido.</h2><p>Conservamos tu bolsa y la referencia del intento anterior. Primero verificaremos su estado para evitar un pedido duplicado.</p><div className="summary-total"><span>Total enviado</span><strong>{money(attempt.expectedTotalMinor, attempt.expectedCurrency)}</strong></div>{error ? <p className="form-error" role="alert">{error}</p> : null}<button type="button" className="button primary full-width" disabled={submitting} onClick={resumeCheckout}>{submitting ? "Verificando…" : attempt.provider === "stripe" ? "Retomar pago" : "Verificar mi pedido"}<ArrowRight size={16} /></button><p className="summary-footnote">Volver desde la pasarela no confirma ni cancela un pago.</p></div> : <form onSubmit={event => { event.preventDefault(); void checkout(); }}>
-              <h2>Tu resumen</h2><div className="summary-row"><span>Productos</span><strong>{mixedCurrency ? "Varias monedas" : money(total, currency)}</strong></div><div className="summary-row"><span>Entrega</span><span>A coordinar</span></div><div className="summary-total"><span>Total de productos</span><strong>{mixedCurrency ? "—" : money(total, currency)}</strong></div>
-              <div className="checkout-fields"><h3>¿Para quién es?</h3><label className="field">Nombre completo<input required minLength={2} autoComplete="name" maxLength={120} value={customer.name} onChange={event => setCustomer({ ...customer, name: event.target.value })} /></label><label className="field">Email<input required type="email" autoComplete="email" maxLength={200} value={customer.email} onChange={event => setCustomer({ ...customer, email: event.target.value })} /></label><label className="field">Teléfono <span>(opcional)</span><input type="tel" autoComplete="tel" maxLength={40} value={customer.phone} onChange={event => setCustomer({ ...customer, phone: event.target.value })} /></label><label className="field">Dirección <span>(opcional)</span><input autoComplete="street-address" maxLength={300} value={customer.address} onChange={event => setCustomer({ ...customer, address: event.target.value })} /></label></div>
-              <div className="payment-note"><ShieldCheck size={20} /><p><strong>{paymentLoading ? "Consultando medios de pago…" : paymentOption?.label || "Medio de pago no disponible"}</strong>{paymentOption?.mode === "redirect" ? "Continuarás en una página segura de Stripe para completar el pago. La tienda no recibe datos de tu tarjeta." : "Confirmá tu pedido sin ingresar datos de tarjeta. El precio y el stock se verifican al confirmar."}</p></div>
-              {paymentError ? <div className="form-error" role="alert">{paymentError}<button type="button" className="text-link" onClick={() => setPaymentRetry(value => value + 1)}>Reintentar</button></div> : null}
-              {mixedCurrency ? <p className="form-error" role="alert">Tu bolsa incluye distintas monedas. Realizá un pedido separado por moneda.</p> : null}{error ? <p className="form-error" role="alert">{error}</p> : null}{refreshed ? <p className="cart-refreshed" role="status">Precios y disponibilidad actualizados. Revisá tu bolsa antes de confirmar.</p> : null}
-              <button type="button" className="refresh-cart-link" disabled={locked} onClick={refreshCart}>{refreshing ? "Actualizando…" : "Actualizar precios y stock"}</button>{!templateConfig.modules.orders ? <p className="form-error">La recepción de pedidos está desactivada.</p> : null}
-              <button className="button primary full-width" type="submit" disabled={locked || mixedCurrency || !paymentOption || paymentLoading || !!paymentError || !templateConfig.modules.orders || runtimeSettings?.acceptingOrders === false}>{submitting ? "Preparando pedido…" : paymentOption?.mode === "redirect" ? "Continuar al pago seguro" : "Confirmar pedido"}<ArrowRight size={16} /></button><p className="summary-footnote">{paymentOption?.mode === "redirect" ? "La confirmación del pago se verifica en el servidor." : "No se realiza ningún cobro en este paso."}</p>
+            {attempt ? <div className="checkout-recovery" aria-live="polite"><ShieldCheck size={26} /><h2>{t("recovery.title")}</h2><p>{t("recovery.body")}</p><div className="summary-total"><span>{t("recovery.totalSent")}</span><strong>{money(attempt.expectedTotalMinor, attempt.expectedCurrency)}</strong></div>{error ? <p className="form-error" role="alert">{error}</p> : null}<button type="button" className="button primary full-width" disabled={submitting} onClick={resumeCheckout}>{submitting ? t("recovery.verifying") : attempt.provider === "stripe" ? t("recovery.resumePayment") : t("recovery.verifyOrder")}<ArrowRight size={16} /></button><p className="summary-footnote">{t("recovery.footnote")}</p></div> : <form onSubmit={event => { event.preventDefault(); void checkout(); }}>
+              <h2>{t("summary.title")}</h2><div className="summary-row"><span>{t("summary.products")}</span><strong>{mixedCurrency ? t("summary.multipleCurrencies") : money(total, currency)}</strong></div><div className="summary-row"><span>{t("summary.delivery")}</span><span>{t("summary.deliveryValue")}</span></div><div className="summary-total"><span>{t("summary.productsTotal")}</span><strong>{mixedCurrency ? "—" : money(total, currency)}</strong></div>
+              <div className="checkout-fields"><h3>{t("customer.heading")}</h3><label className="field">{t("customer.name")}<input required minLength={2} autoComplete="name" maxLength={120} value={customer.name} onChange={event => setCustomer({ ...customer, name: event.target.value })} /></label><label className="field">{t("customer.email")}<input required type="email" autoComplete="email" maxLength={200} value={customer.email} onChange={event => setCustomer({ ...customer, email: event.target.value })} /></label><label className="field">{t("customer.phone")} <span>{t("customer.optional")}</span><input type="tel" autoComplete="tel" maxLength={40} value={customer.phone} onChange={event => setCustomer({ ...customer, phone: event.target.value })} /></label><label className="field">{t("customer.address")} <span>{t("customer.optional")}</span><input autoComplete="street-address" maxLength={300} value={customer.address} onChange={event => setCustomer({ ...customer, address: event.target.value })} /></label></div>
+              <div className="payment-note"><ShieldCheck size={20} /><p><strong>{paymentLabel}</strong>{paymentOption?.mode === "redirect" ? t("payment.noteRedirect") : t("payment.noteManual")}</p></div>
+              {paymentError ? <div className="form-error" role="alert">{paymentError}<button type="button" className="text-link" onClick={() => setPaymentRetry(value => value + 1)}>{t("payment.retry")}</button></div> : null}
+              {mixedCurrency ? <p className="form-error" role="alert">{t("checkout.mixedCurrencies")}</p> : null}{error ? <p className="form-error" role="alert">{error}</p> : null}{refreshed ? <p className="cart-refreshed" role="status">{t("checkout.refreshed")}</p> : null}
+              <button type="button" className="refresh-cart-link" disabled={locked} onClick={refreshCart}>{refreshing ? t("checkout.refreshing") : t("checkout.refresh")}</button>{!templateConfig.modules.orders ? <p className="form-error">{t("checkout.ordersDisabled")}</p> : null}
+              <button className="button primary full-width" type="submit" disabled={locked || mixedCurrency || !paymentOption || paymentLoading || !!paymentError || !templateConfig.modules.orders || runtimeSettings?.acceptingOrders === false}>{submitting ? t("checkout.preparing") : paymentOption?.mode === "redirect" ? t("checkout.continueToPayment") : t("checkout.placeOrder")}<ArrowRight size={16} /></button><p className="summary-footnote">{paymentOption?.mode === "redirect" ? t("checkout.footnoteRedirect") : t("checkout.footnoteManual")}</p>
             </form>}
           </aside>
         </div>}

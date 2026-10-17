@@ -7,20 +7,20 @@ import type { RuntimeSettings, UpdateRuntimeSettings } from './contracts';
 const MAX_VERSION = 2_147_483_647;
 
 function authorize(actor: Actor, scope: string, adminOnly = false) {
-  if (!actor?.userId || !actor?.tenantId) throw new AppError('UNAUTHENTICATED', 'Iniciá sesión y seleccioná una empresa.', 401);
+  if (!actor?.userId || !actor?.tenantId) throw new AppError('UNAUTHENTICATED', 'Sign in and select an organization.', 401);
   const admin = actor.role === 'owner' || actor.role === 'admin';
   const allowed = admin || (!adminOnly && (actor.role === 'cashier' || (actor.role === 'viewer' && scope === 'products:read')));
-  if (!allowed || (actor.scopes !== undefined && !actor.scopes.includes(scope))) throw new AppError('FORBIDDEN', 'No tenés permiso para esta operación.', 403);
+  if (!allowed || (actor.scopes !== undefined && !actor.scopes.includes(scope))) throw new AppError('FORBIDDEN', 'You do not have permission for this operation.', 403);
 }
 
 function validate(input: unknown): UpdateRuntimeSettings {
-  if (!input || typeof input !== 'object' || Array.isArray(input)) throw new AppError('INVALID_INPUT', 'Revisá la configuración.');
+  if (!input || typeof input !== 'object' || Array.isArray(input)) throw new AppError('INVALID_INPUT', 'Review the settings.');
   const value = input as Record<string, unknown>;
   if (Object.keys(value).some(key => !['version', 'acceptingOrders', 'notice'].includes(key))
     || typeof value.version !== 'number' || !Number.isInteger(value.version) || value.version < 0 || value.version >= MAX_VERSION
     || typeof value.acceptingOrders !== 'boolean' || typeof value.notice !== 'string' || value.notice.length > 200
     || /[\u0000-\u0008\u000b-\u001f\u007f]/.test(value.notice)) {
-    throw new AppError('INVALID_INPUT', 'Revisá la versión, el estado y el aviso de hasta 200 caracteres.');
+    throw new AppError('INVALID_INPUT', 'Review the version, the status and the notice (up to 200 characters).');
   }
   return { version: value.version, acceptingOrders: value.acceptingOrders, notice: value.notice.trim() };
 }
@@ -61,7 +61,7 @@ export function createRuntimeSettingsService(db: Kysely<Database>, options: Serv
     assertAcceptingOrders(actor: Actor): Promise<void> {
       return operation('settings.orders.check', async () => {
         authorize(actor, 'orders:write');
-        if (!(await read(actor.tenantId)).acceptingOrders) throw new AppError('ORDERS_PAUSED', 'Las nuevas operaciones están pausadas. Intentá más tarde.', 409);
+        if (!(await read(actor.tenantId)).acceptingOrders) throw new AppError('ORDERS_PAUSED', 'New orders are paused. Try again later.', 409);
       });
     },
     updateSettings(actor: Actor, input: UpdateRuntimeSettings): Promise<RuntimeSettings> {
@@ -73,7 +73,7 @@ export function createRuntimeSettingsService(db: Kysely<Database>, options: Serv
           const row = next.version === 0
             ? await trx.insertInto('commerce_runtime_settings').values({ tenant_id: actor.tenantId, ...values }).onConflict(oc => oc.column('tenant_id').doNothing()).returning(['version', 'accepting_orders', 'notice']).executeTakeFirst()
             : await trx.updateTable('commerce_runtime_settings').set(values).where('tenant_id', '=', actor.tenantId).where('version', '=', next.version).returning(['version', 'accepting_orders', 'notice']).executeTakeFirst();
-          if (!row) throw new AppError('VERSION_CONFLICT', 'La configuración cambió. Recargá y revisá los valores antes de guardar.', 409);
+          if (!row) throw new AppError('VERSION_CONFLICT', 'The settings changed. Reload and review the values before saving.', 409);
           await trx.insertInto('commerce_audit').values({
             id: randomUUID(), tenant_id: actor.tenantId, actor_id: actor.userId, action: 'settings.updated', resource_id: actor.tenantId,
             details_json: JSON.stringify({ previousVersion: next.version, version: row.version, acceptingOrders: next.acceptingOrders, noticePresent: Boolean(next.notice) }),

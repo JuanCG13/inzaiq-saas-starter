@@ -7,7 +7,7 @@ import { AppError } from '@/core/contracts';
 export const runtime = 'nodejs';
 export function GET(request: Request) {
   return route(request, 'api.store.settings', '/api/store/settings', async () => {
-    if (templateConfig.kind !== 'ecommerce') throw new AppError('MODULE_DISABLED', 'Tienda pública no habilitada.', 404);
+    if (templateConfig.kind !== 'ecommerce') throw new AppError('MODULE_DISABLED', 'The public store is not enabled.', 404);
     return { settings: await runtimeSettings().getOperationalSettings(storeActor()) };
   });
 }
