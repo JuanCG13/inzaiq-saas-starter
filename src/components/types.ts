@@ -7,9 +7,7 @@ export interface Session {
   demo: boolean;
 }
 
-export function money(minor: number, currency = "USD", locale = "es-PY") {
-  return new Intl.NumberFormat(locale, { style: "currency", currency }).format(minor / currencyFactor(currency));
-}
+export { currencyFactor, formatMoney as money } from "@/i18n/format";
 
 export function safeImageUrl(value: string) {
   if (!value) return undefined;
@@ -21,9 +19,6 @@ export function safeImageUrl(value: string) {
   }
 }
 
-export function currencyFactor(currency = "USD") {
-  return 10 ** (new Intl.NumberFormat("en", { style: "currency", currency }).resolvedOptions().maximumFractionDigits ?? 2);
-}
 
 export function errorMessage(error: unknown, fallback = "No se pudo completar la operación.") {
   if (!(error instanceof Error)) return fallback;
