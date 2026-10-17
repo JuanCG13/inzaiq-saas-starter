@@ -8,7 +8,7 @@ Este template está preparado para **publicar imágenes nuevas gradualmente** y 
 | --- | --- | --- |
 | Pausar nuevas ventas o mostrar un aviso | Configuración de la empresa, con permisos y versión | No; se guarda en la base y se consulta desde la interfaz |
 | Producto, precio, existencias | UI o herramienta MCP del dominio | No; conserva validación, auditoría e idempotencia |
-| Marca compilada, código, dependencias o contrato | Rama, pruebas, imagen inmutable y despliegue gradual | Sí |
+| Marca compilada, idiomas y moneda predeterminada (`template.config.ts`), textos de `src/i18n/messages`, código, dependencias o contrato | Rama, pruebas, imagen inmutable y despliegue gradual | Sí |
 | Esquema de datos | Migración nueva compatible, ejecutada una sola vez antes de dar tráfico a la nueva versión | Sí, con procedimiento de datos |
 
 Los ajustes `acceptingOrders`, `notice` y `version` son persistentes por empresa. Pausar pedidos impide crear nuevas operaciones; no cancela ventas, no desconecta usuarios y no sustituye el retiro de un pod del balanceador. La interfaz consulta cambios periódicamente y al recuperar el foco; el servidor decide si puede aceptar cada escritura. Los cambios de configuración del proceso o secretos inyectados por variables de entorno requieren sustituir los pods.
@@ -79,6 +79,19 @@ La carga a CDN depende del proveedor y debe comprobar permisos, rutas, cabeceras
 Actualmente las mutaciones usan HTTP, no Server Actions. Si se agregan Server Actions, suministrar una clave estable `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` durante build para las réplicas y versiones coexistentes, mediante el secret BuildKit `next_server_actions_key`. El Dockerfile admite ese montaje; no usar ARG/ENV versionados para la clave. Conservar también la compatibilidad de funciones y probar clientes anteriores; una clave compartida por sí sola no recupera funciones eliminadas.
 
 Los datos comerciales se obtienen desde APIs dinámicas. Si un módulo incorpora ISR o `'use cache'`, debe diseñar caché compartido e invalidación entre réplicas antes de publicar. El `emptyDir` de `.next/cache` del manifiesto es local al pod, no un caché distribuido.
+
+### Idioma, redirecciones y `public/`
+
+Las páginas viven bajo un prefijo de idioma (`/en/...`, `/es/...`) y `src/proxy.ts` responde `307` a una URL de página sin prefijo, con `Vary: Accept-Language, Cookie` y `Cache-Control: private, no-store`, porque el destino depende del visitante. En el proxy inverso o CDN:
+
+- No almacenar esa redirección en una caché compartida y reenviar `Cookie` y `Accept-Language` al origen; si el borde los elimina, todas las URL sin prefijo caen en el idioma predeterminado.
+- No redirigir ni reescribir `/api/*`, `/_next/*` ni `/.well-known/*`. El proxy de idioma ya las excluye junto con cualquier ruta que contenga un punto; las sondas `/api/health` y `/api/readiness`, MCP, OAuth y los webhooks de pago usan esas rutas.
+- Seguir sin cachear HTML autenticado. Las páginas con prefijo son URL por idioma; esta guía no define una política de caché pública para ellas.
+- El idioma predeterminado y los idiomas ofrecidos están compilados: cambiarlos es una imagen nueva, no un ajuste en caliente.
+
+Los archivos de `public/` (por ejemplo las ilustraciones `public/demo/*.svg`) los copia el Dockerfile a la imagen y se sirven desde el origen de la aplicación en `/demo/...`, sin hash de contenido; `assetPrefix` no los reescribe. Al sustituir las imágenes de demostración por activos del cliente, usar nombres nuevos (ver arriba) para no servir una versión antigua desde una caché.
+
+La primera publicación con prefijos de idioma cambia las URL de página (`/cart` pasa a `/en/cart`). Una versión nueva redirige las URL antiguas, incluidas las URL de retorno de Stripe ya enviadas y las de OAuth, que se guardan sin prefijo. Una versión anterior no conoce `/en/...`: durante la convivencia N−1/N o un rollback, una URL con prefijo que llegue a un pod anterior no tiene ruta allí. Ensayarlo en staging con ambas versiones, igual que el resto de la transición; no se ha medido en un clúster real.
 
 ## Migraciones sin romper la versión anterior
 

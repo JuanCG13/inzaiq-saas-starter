@@ -7,7 +7,8 @@ A coding agent clones a template, changes brand configuration and chooses module
 | Layer | Implementation | Responsibility |
 |---|---|---|
 | Interface | Next.js App Router, React, Radix Dialog, Lucide | Accessible store/admin or POS workbench |
-| HTTP | Next route handlers, Zod | Input limits, validation, same-origin checks, safe errors |
+| Internationalization | `src/i18n`, `src/proxy.ts`, `src/app/[lang]` | Locale-prefixed routes, language negotiation, message catalogs (English, Spanish), money/date formatting; see [languages and currency](i18n.md) |
+| HTTP | Next route handlers, Zod | Input limits, validation, same-origin checks, safe errors in English with stable codes |
 | Identity | Better Auth organization + JWT + MCP/CIMD plugins | Sessions, organization membership, OAuth 2.1/PKCE, consent |
 | Agent transport | Official MCP TypeScript SDK | Streamable HTTP, capability discovery, typed tools |
 | Domain | `src/core` | Money, inventory transactions, role/scope policy, audit and idempotency |
@@ -28,7 +29,7 @@ We assemble established identity, protocol, SQL, validation and tracing packages
 
 - Tenant context is derived from verified session membership or verified OAuth claims plus current membership/consent. A tenant header or model argument never grants access.
 - Scope and role are intersected on every operation. Viewing data does not confer mutation privileges.
-- Money is integer minor units; PYG uses zero decimal digits, USD uses two. Never multiply all currencies by 100. Different currencies cannot be combined in one sale.
+- Money is integer minor units; PYG uses zero decimal digits, USD uses two, and the factor comes from `Intl` (`currencyFactor` in `src/i18n/format.ts`). Never multiply all currencies by 100. Different currencies cannot be combined in one sale.
 - Product price and currency are read from the server at commit. HTTP checkout and MCP order creation require `expectedTotalMinor` and `expectedCurrency` to bind confirmation to both amount and currency; stale values roll back the transaction. These assertions never set the server price.
 - Order, lines, stock changes and audit commit together. If audit persistence fails, the business transaction fails too. Diagnostic export failures do not affect the business result.
 - Idempotency keys survive restarts and are bound to normalized request content. The order hash includes the expected total and expected currency, as well as items, channel, payment method and customer. Reusing a key with changed content is rejected.
@@ -41,7 +42,9 @@ We assemble established identity, protocol, SQL, validation and tracing packages
 
 ## Boundaries and extension points
 
-See `template.manifest.json`. `src/template.config.ts` owns build-time branding, locale, currency and module switches. `npm run configure -- --name "Client" --currency PYG --locale es-PY` updates branding without modifying existing amounts. Only the tenant notice and new-order admission setting change live through the [runtime settings contract](runtime-settings.md); they do not modify executable code or credentials. Extend modules by adding a domain method with tests, then expose a schema-validated HTTP route and a scoped MCP tool. The transport must not contain business rules.
+See `template.manifest.json`. `src/template.config.ts` owns build-time branding, the offered languages (`i18n`), the default currency and the currencies offered in the product editor, and module switches. `npm run configure -- --name "Client" --currency PYG --currencies PYG,USD --locale es --locales es,en` updates them without modifying existing amounts. Only the tenant notice and new-order admission setting change live through the [runtime settings contract](runtime-settings.md); they do not modify executable code or credentials. Extend modules by adding a domain method with tests, then expose a schema-validated HTTP route and a scoped MCP tool. The transport must not contain business rules.
+
+Page URLs carry a language prefix (`/en/...`, `/es/...`). `src/proxy.ts` redirects an unprefixed page URL using the `NEXT_LOCALE` cookie, then `Accept-Language`, then the default language, keeping the query string; `/api`, `/_next`, `/.well-known` and files with an extension are not touched. Interface text lives in `src/i18n/messages/<language>/*.json`. Server responses, MCP output, logs and audit stay in English; a failure carries a stable `code` and the browser shows the text from `errors.codes.<CODE>`. Tests enforce that both catalogs carry the same keys and that every error code has a message in each; they cannot detect a literal string left in a component. Details in [languages and currency](i18n.md).
 
 Ecommerce supports manual payment coordination and optional Stripe hosted Checkout through an explicit provider interface. The adapter uses `stripe@23.0.0` and API `2026-09-30.endive`; card data stays with Stripe. Provider tests use real SDK signature verification and simulated responses, without an external Stripe account test or live charge. See [payments](payments.md). Additional gateways, shipping carriers, fiscal invoices, returns/refunds, discounts, weighted/fractional stock, multi-warehouse transfers and offline synchronization remain separate modules. Each size/color variant can initially be a distinct SKU.
 
@@ -49,7 +52,7 @@ Application code is deployed as a new immutable release, not modified in running
 
 ## Design
 
-Clear hierarchy, generous whitespace, a restrained accent, familiar controls and progressive disclosure are inspired by Apple HIG. Chris Do's clarity/typographic hierarchy and COLLINS' coherent visual systems inform the communication. This is not an Apple clone; no proprietary fonts or Apple assets are bundled. Monetary totals use tabular numerals, focus is visible, dialogs support keyboard interaction and motion respects reduced-motion preferences. Demo photos are external Unsplash samples, replace them with licensed customer assets for delivery.
+Clear hierarchy, generous whitespace, a restrained accent, familiar controls and progressive disclosure are inspired by Apple HIG. Chris Do's clarity/typographic hierarchy and COLLINS' coherent visual systems inform the communication. This is not an Apple clone; no proprietary fonts or Apple assets are bundled. Monetary totals use tabular numerals, focus is visible, dialogs support keyboard interaction and motion respects reduced-motion preferences. Demo product images are first-party SVG illustrations in `public/demo`; replace them with licensed customer assets for delivery.
 
 ## Read before extending
 
@@ -64,3 +67,4 @@ Verified during implementation, 2026-10-17:
 - https://supabase.com/docs/guides/database/connecting-to-postgres
 - https://developer.apple.com/design/human-interface-guidelines
 - https://opentelemetry.io/docs/languages/js/
+- Installed Next.js docs for locale routing: `node_modules/next/dist/docs/01-app/02-guides/internationalization.md`, `.../03-api-reference/03-file-conventions/proxy.md` and `.../03-api-reference/04-functions/next-root-params.md`

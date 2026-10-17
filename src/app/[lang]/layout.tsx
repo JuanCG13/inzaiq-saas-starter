@@ -14,7 +14,8 @@ export async function generateMetadata({ params }: LayoutProps<"/[lang]">): Prom
   const { lang } = await params;
   if (!isEnabledLocale(lang)) return {};
   const t = await getTranslator(lang, "common");
-  return { title: { default: t("meta.title", { brand: templateConfig.name }), template: `%s | ${templateConfig.name}` }, description: brandDescription(lang) };
+  // A declared icon stops browsers from requesting /favicon.ico, which this app does not serve.
+  return { title: { default: t("meta.title", { brand: templateConfig.name }), template: `%s | ${templateConfig.name}` }, description: brandDescription(lang), icons: { icon: "/icon.svg" } };
 }
 
 export default async function RootLayout({ children, params }: LayoutProps<"/[lang]">) {

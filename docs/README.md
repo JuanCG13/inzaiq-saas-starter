@@ -9,6 +9,8 @@ Los dos README presentan el mismo alcance. Las guías técnicas conservan su idi
 | Guide / Guía | Language / Idioma | Purpose / Propósito |
 | --- | --- | --- |
 | [Assembly](assembly.md) | English | Client installation, configuration and acceptance checks |
+| [Languages and currency](i18n.md) · [Idiomas y moneda](i18n.es.md) | English · Español | Locale routing, message catalogs, adding a language, default currency and its limits |
+| [Screen gallery](screens.md) · [Galería de pantallas](screens.es.md) | English · Español | Interface screenshot gallery, one page per language / Galería de capturas de la interfaz, una página por idioma |
 | [Architecture](architecture.md) | English | Layers, shared business rules and implementation decisions |
 | [Database](database.md) | English | Providers, migrations, tenant isolation, money and concurrency |
 | [Runtime settings](runtime-settings.md) | English | Tenant notices and order admission without a rebuild |

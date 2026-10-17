@@ -14,10 +14,14 @@ El cliente conecta **su agente al servidor del negocio**, no sus credenciales de
 
 1. Configurar `DATABASE_PROVIDER`, `DATABASE_URL`, `BETTER_AUTH_URL` (origin HTTPS sin path) y `BETTER_AUTH_SECRET` aleatorio de al menos 32 caracteres. Para Turso remoto, `TURSO_AUTH_TOKEN`.
 2. Revisar migraciones y aplicar: `npm run db:migrate` y `npm run auth:migrate`. El migrador auth añade RLS y revoca acceso de PUBLIC/anon/authenticated a tablas de autenticación en PostgreSQL; usar una conexión de servidor propietaria. Nunca compartirla con navegador o agente.
-3. Abrir `/sign-in`, crear cuenta con contraseña larga, crear o elegir empresa en `/onboarding`.
+3. Abrir `/sign-in`, crear cuenta con contraseña larga, crear o elegir empresa en `/onboarding`. Estas rutas sin prefijo redirigen a `/en/...` o `/es/...` (ver «Idioma de las páginas OAuth»).
 4. Configurar dominio HTTPS público accesible desde OpenAI/Anthropic. Un localhost o una dirección de VPN no basta para los conectores cloud. `BETTER_AUTH_URL` debe coincidir con el dominio servido y su Host; revisar configuración del proxy.
-5. Verificar `GET /.well-known/oauth-protected-resource` y `GET /.well-known/oauth-authorization-server/api/auth`. No deben redirigir a login ni estar protegidos por autenticación del hosting.
+5. Verificar `GET /.well-known/oauth-protected-resource` y `GET /.well-known/oauth-authorization-server/api/auth`. No deben redirigir a login ni estar protegidos por autenticación del hosting; el proxy de idioma excluye `/.well-known/` y `/api/`, de modo que tampoco los redirige.
 6. Un `POST /api/mcp` sin token devuelve `401` y `WWW-Authenticate` con `resource_metadata`. Nunca se permite acceso demo en MCP.
+
+## Idioma de las páginas OAuth
+
+`src/lib/auth.ts` configura `loginPage: '/sign-in'`, `consentPage: '/consent'` y `postLogin.page: '/onboarding'` sin prefijo de idioma. Cuando el servidor OAuth redirige allí, `src/proxy.ts` responde `307` a `/<idioma>/sign-in`, `/<idioma>/consent` o `/<idioma>/onboarding` y **conserva la cadena de consulta** (`client_id`, `scope` y los parámetros firmados) sin modificarla. La página de consentimiento sigue verificando esa firma con `verifyOAuthQueryParams`. El idioma lo elige la cookie `NEXT_LOCALE` y, si no existe, el `Accept-Language` del navegador con el que la persona autoriza, y luego el idioma predeterminado; el recorrido OAuth no transporta un idioma. Las etiquetas de scopes del consentimiento están en `src/i18n/messages/<idioma>/auth.json` (`consent.scopes.<scope>`); un scope sin traducción se muestra con su identificador. Las respuestas con `307` llevan `Vary: Accept-Language, Cookie` y `Cache-Control: private, no-store`: no cachearlas en el borde. Detalles en [idiomas y moneda](i18n.md). Esto está cubierto por pruebas unitarias de la lógica de redirección (`tests/i18n-routing.test.ts`); un recorrido OAuth completo con un cliente real sigue siendo evidencia pendiente de cada instalación.
 
 ## Conectar Claude
 
@@ -44,7 +48,7 @@ En la superficie de plugins/conectores personalizados disponible para la cuenta,
 
 La lista de herramientas se filtra por scopes; el dominio verifica además el rol vigente. Los scopes no elevan roles. Las escrituras requieren `confirmed: true`, solo después de aprobación explícita del usuario. Esta bandera y las annotations guían al host; **no sustituyen control de acceso ni una firma humana**. Si se necesita aprobación fuerte por operación, añadir una cola de propuestas y aprobación desde la UI antes de habilitar dichas capacidades.
 
-`tenantId`, SQL, URLs arbitrarias y credenciales no son argumentos de herramientas. Actualizar producto requiere `version`. Inventario y pedidos requieren `idempotencyKey`; reutilizarla al reintentar. El servidor calcula importes y evita stock negativo en transacciones. Un pedido web manual no equivale a un pago cobrado.
+Los nombres, descripciones, errores y resultados de las herramientas MCP están en inglés, independientemente del idioma de la interfaz; el agente conversa con la persona en el idioma de esta. Los datos del comerciante (nombres de producto, descripciones, avisos) se devuelven tal como se guardaron. `tenantId`, SQL, URLs arbitrarias y credenciales no son argumentos de herramientas. Actualizar producto requiere `version`. Inventario y pedidos requieren `idempotencyKey`; reutilizarla al reintentar. El servidor calcula importes y evita stock negativo en transacciones. Un pedido web manual no equivale a un pago cobrado.
 
 ## Desconectar y administrar accesos
 

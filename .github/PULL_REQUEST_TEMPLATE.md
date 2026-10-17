@@ -16,6 +16,7 @@ Qué necesita el cliente, qué cambia y cómo se comprueba desde la interfaz o M
 - [ ] E2E del recorrido afectado pasa en un entorno aislado; adjunto resultado.
 - [ ] Pruebas relevantes cubren éxito, rechazo y fallas; indico lo no probado.
 - [ ] Actualicé versión, CHANGELOG, README y contrato del módulo cuando corresponde.
+- [ ] Todo texto visible nuevo está en `src/i18n/messages` en inglés y español, cada código de error nuevo tiene `errors.codes` en ambos y las capturas afectadas de `docs/screenshots` se regeneraron (o indico que no cambian).
 
 ## Publicación y rollback
 

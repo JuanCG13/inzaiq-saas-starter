@@ -3,13 +3,13 @@ import { test, expect, type Page } from '@playwright/test';
 const host = 'https://checkout.stripe.com/c/pay/cs_test_recovered';
 
 async function prepareCart(page: Page) {
-  await page.route('**/api/store/payment-options', route => route.fulfill({ json: { data: { provider: 'stripe', label: 'Pago seguro con Stripe', mode: 'redirect' } } }));
+  await page.route('**/api/store/payment-options', route => route.fulfill({ json: { data: { provider: 'stripe', label: 'Secure payment with Stripe', mode: 'redirect' } } }));
   await page.route('**/api/store/settings', route => route.fulfill({ json: { data: { settings: { version: 1, acceptingOrders: true, notice: '' } } } }));
-  await page.goto('/');
-  await page.getByRole('button', { name: 'Ver Camiseta esencial', exact: true }).click();
-  await page.getByRole('dialog').getByRole('button', { name: 'Añadir a mi bolsa' }).click();
-  await page.getByRole('dialog').getByRole('link', { name: 'Ir a mi bolsa' }).click();
-  await page.getByLabel('Nombre completo').fill('Private Hosted Customer');
+  await page.goto('/en');
+  await page.getByRole('button', { name: 'View Essential tee', exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Add to my bag' }).click();
+  await page.getByRole('dialog').getByRole('link', { name: 'Go to my bag' }).click();
+  await page.getByLabel('Full name').fill('Private Hosted Customer');
   await page.getByLabel('Email', { exact: true }).fill('private-hosted@example.invalid');
 }
 
@@ -32,23 +32,23 @@ test('unknown hosted checkout survives reload and cancel return, resuming the sa
   });
   await page.route('https://checkout.stripe.com/**', route => route.fulfill({ contentType: 'text/html', body: '<title>Hosted checkout test</title><p>Provider test page</p>' }));
   await prepareCart(page);
-  await page.getByRole('button', { name: 'Continuar al pago seguro', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Retomar pago', exact: true })).toBeVisible();
-  await expect(page.getByRole('alert').filter({ hasText: 'No pudimos conectar' })).toBeVisible();
+  await page.getByRole('button', { name: 'Continue to secure payment', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Resume payment', exact: true })).toBeVisible();
+  await expect(page.getByRole('alert').filter({ hasText: 'Could not connect.' })).toBeVisible();
   const stored = await page.evaluate(() => sessionStorage.getItem('commerce.checkout.v1'));
   expect(stored).toContain(submittedKey);
   expect(stored).not.toContain('Private Hosted Customer');
   expect(stored).not.toContain('private-hosted@example.invalid');
   await page.reload();
-  await expect(page.getByRole('button', { name: 'Retomar pago', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Retomar pago', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Resume payment', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Resume payment', exact: true }).click();
   await expect(page).toHaveURL(host);
-  await page.goto('/cart?cancelled=1');
-  await expect(page.getByRole('heading', { name: 'Camiseta esencial', exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Retomar pago', exact: true })).toBeVisible();
-  await page.goto('/checkout/return?status=success&session_id=forged');
-  await expect(page.getByRole('heading', { name: 'La confirmación está pendiente.', exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Pago confirmado.', exact: true })).toHaveCount(0);
+  await page.goto('/en/cart?cancelled=1');
+  await expect(page.getByRole('heading', { name: 'Essential tee', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Resume payment', exact: true })).toBeVisible();
+  await page.goto('/en/checkout/return?status=success&session_id=forged');
+  await expect(page.getByRole('heading', { name: 'Confirmation is pending.', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Payment confirmed.', exact: true })).toHaveCount(0);
   expect(createCount).toBe(1);
   expect(resumedKeys.length).toBeGreaterThanOrEqual(2);
   expect(resumedKeys.every(key => key === submittedKey)).toBe(true);
@@ -67,8 +67,8 @@ test('a verified payment settles only submitted quantities and clears the recove
     }));
   });
   await page.route('**/api/store/checkout/resume', route => route.fulfill({ json: { data: { state: 'completed' } } }));
-  await page.goto('/checkout/return?status=cancelled');
-  await expect(page.getByRole('heading', { name: 'Pago confirmado.', exact: true })).toBeVisible();
+  await page.goto('/en/checkout/return?status=cancelled');
+  await expect(page.getByRole('heading', { name: 'Payment confirmed.', exact: true })).toBeVisible();
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('commerce.cart.v1') || '[]')[0]?.quantity)).toBe(2);
   expect(await page.evaluate(() => sessionStorage.getItem('commerce.checkout.v1'))).toBeNull();
 });
@@ -77,6 +77,6 @@ test('an older server without payment discovery blocks checkout with an actionab
   await prepareCart(page);
   await page.route('**/api/store/payment-options', route => route.fulfill({ status: 404, json: { error: { message: 'Missing route' } } }));
   await page.reload();
-  await expect(page.getByRole('alert').filter({ hasText: 'La tienda se está actualizando.' })).toContainText('Recargá esta página antes de confirmar un pedido.');
-  await expect(page.getByRole('button', { name: 'Confirmar pedido', exact: true })).toBeDisabled();
+  await expect(page.getByRole('alert').filter({ hasText: 'The store is being updated.' })).toContainText('Reload this page before placing an order.');
+  await expect(page.getByRole('button', { name: 'Place order', exact: true })).toBeDisabled();
 });

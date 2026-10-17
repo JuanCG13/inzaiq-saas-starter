@@ -46,7 +46,7 @@ Role and OAuth scope checks both apply. Undefined scopes mean an authenticated f
 
 ## Money, inventory, and order lifecycle
 
-- All amounts are nonnegative safe JavaScript integers in the currency's smallest unit. PYG has no decimal subdivision; USD uses cents. PostgreSQL `bigint` results are converted explicitly, without global `pg` type-parser changes. Maximum supported line and order total: `Number.MAX_SAFE_INTEGER`.
+- All amounts are nonnegative safe JavaScript integers in the currency's smallest unit. PYG and JPY have no decimal subdivision; USD uses cents; KWD uses three decimals. The factor is `10 ** maximumFractionDigits` from `Intl` (`currencyFactor` in `src/i18n/format.ts`), shared by the editor, the seed and display. The installation's default currency (`currency` in `src/template.config.ts`, shipped `USD`) only chooses the currency of new products and empty totals; each product row keeps its own `currency`, and changing the default never converts stored prices. PostgreSQL `bigint` results are converted explicitly, without global `pg` type-parser changes. Maximum supported line and order total: `Number.MAX_SAFE_INTEGER`.
 - Maximum stock: 1,000,000,000 units per product. Maximum requested quantity: 1,000,000 units per product per order. Maximum 100 submitted order lines. Duplicate product lines are combined and sorted before hashing and locking.
 - Product prices are read atomically from server rows while stock is decremented. Client line prices are rejected. `expectedTotalMinor` and `expectedCurrency` are confirmation assertions, not client-provided prices. HTTP checkout and MCP order creation require both; the domain accepts them optionally for internal callers. A stale total produces PRICE_CHANGED; a stale currency produces CURRENCY_CHANGED even when the integer total is unchanged. Either rejection rolls back the entire transaction.
 - Stock decrement uses conditional SQL `stock >= quantity`; product creation, edits, stock adjustment, checkout, and order status transitions write audit records in the same transaction.
@@ -102,7 +102,7 @@ The payment and runtime tables receive PostgreSQL default-deny RLS with the same
 | MIXED_CURRENCY | 422 | Split the order into one order per currency. |
 | MONEY_OVERFLOW | 422 | Amount exceeds exact supported arithmetic. |
 
-Unexpected database errors propagate to the owning HTTP/MCP telemetry boundary. Never return raw SQL, connection strings, provider errors, or stack traces to clients.
+Messages are English and the `code` is the contract: the browser shows its own localized text from `errors.codes.<CODE>` in `src/i18n/messages/<language>/errors.json`, and a test fails if a code used in `src/` has no message in English and Spanish ([languages and currency](i18n.md)). Unexpected database errors propagate to the owning HTTP/MCP telemetry boundary. Never return raw SQL, connection strings, provider errors, or stack traces to clients.
 
 ## Telemetry plan and integration
 
@@ -120,7 +120,7 @@ Domain tests exercise real libSQL files, success and rejection telemetry, unexpe
 
 ## Demo and extension boundaries
 
-`seedDemo(db, actor, variant)` in `src/db/seed.ts` is an explicit nonproduction operation. It inserts six products by missing SKU and never overwrites price or stock. Ecommerce uses NOMA sample products in USD; POS uses sample retail/grocery products in PYG. Sample image URLs reference external Unsplash imagery; replace with owned customer assets before launch.
+`seedDemo(db, actor, variant, currency)` in `src/db/seed.ts` is an explicit nonproduction operation. It inserts six products by missing SKU and never overwrites price, stock, names or currency, so an older `demo.db` keeps its old rows (`npm run demo:setup` warns; delete `demo.db` and rerun to reseed). Ecommerce uses NOMA sample products; POS uses sample retail/grocery products. Both are written in English and priced in the installation's default currency (`USD` unless configured): each price is a major-unit number multiplied by the currency factor, so zero-decimal currencies receive small demonstration amounts, not realistic prices. Sample images are first-party SVG files in `public/demo` (`/demo/tee.svg`, ...); four of the six POS products define no image. Replace the art and the sample text with owned customer assets before launch. Product text is merchant data stored once; it is not translated ([languages and currency](i18n.md)).
 
 Stripe hosted Checkout is implemented; its SDK and domain tests do not establish a connection to an external Stripe account. Not implemented: tax rules/invoicing, shipping quotes/labels, refunds, multi-location inventory, purchase orders, variants, offline sync, hardware fiscal printers, automatic manual-reservation expiry and background payment reconciliation. Those require separate modules and acceptance tests. Database provider configuration is prepared; a live Supabase/Neon/Turso credentialed deployment has not been verified by these local tests.
 

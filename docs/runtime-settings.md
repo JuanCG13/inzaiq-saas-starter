@@ -6,7 +6,7 @@ Owners and administrators can change a small, explicit set of tenant settings wi
 | --- | --- |
 | `version` | Integer compare-and-swap token. An unsaved tenant reads version `0`; each successful save increments it. |
 | `acceptingOrders` | Boolean admission control for new orders/sales. Default `true`. |
-| `notice` | Plain text, at most 200 characters; empty removes the notice. Public for the ecommerce store, authenticated within POS. Never enter secrets or personal information. |
+| `notice` | Plain text, at most 200 characters; empty removes the notice. Public for the ecommerce store, authenticated within POS. Never enter secrets or personal information. It is shown exactly as typed in every language; it is not translated. |
 
 Settings belong to the actor's verified tenant. A body, query string or header cannot choose a different tenant. `GET /api/admin/settings` requires owner/admin plus `settings:read` for OAuth actors. `PATCH /api/admin/settings` requires owner/admin plus `settings:write` and the entire `{version, acceptingOrders, notice}` object. Unknown fields are rejected. First-party sessions have role checks without an OAuth scope list.
 
@@ -18,16 +18,16 @@ The ecommerce public `GET /api/store/settings` uses only the configured `STORE_T
 
 The settings mutation and its `settings.updated` audit record commit in one database transaction. An insert or update succeeds only for the supplied version; a stale version returns `VERSION_CONFLICT` (409). A failed audit write rolls the setting back. The audit stores version, accepting-orders status and whether a notice exists; it deliberately excludes the notice text. There is no force-write endpoint.
 
-Admin forms preserve the current draft when a newer version arrives, disable stale saves and offer **Recargar valores**. The user must review the reloaded values before saving again. Every open operational display checks the server every 30 seconds while visible and on window focus. Same-window saves also trigger refresh. There is no shared browser/server tenant cache.
+Admin forms preserve the current draft when a newer version arrives, disable stale saves and offer **Reload values** (**Recargar valores** in Spanish). The user must review the reloaded values before saving again. Every open operational display checks the server every 30 seconds while visible and on window focus. Same-window saves also trigger refresh. There is no shared browser/server tenant cache.
 
-Pausing is admission control. It rejects new submissions with `ORDERS_PAUSED` (409); it does not cancel orders, release inventory, invalidate sessions, stop payment reconciliation or replace infrastructure draining. An operation already admitted can finish. Retries of an already persisted idempotent operation remain subject to the original payload validation and do not create a new sale.
+Pausing is admission control. It rejects new submissions with `ORDERS_PAUSED` (409; the API message is English and the browser shows the `errors.codes.ORDERS_PAUSED` text of the active language, see [languages](i18n.md)); it does not cancel orders, release inventory, invalidate sessions, stop payment reconciliation or replace infrastructure draining. An operation already admitted can finish. Retries of an already persisted idempotent operation remain subject to the original payload validation and do not create a new sale.
 
 ## Module contracts
 
 - `createRuntimeSettingsService(db, {telemetry?})` exports `getSettings`, `getOperationalSettings`, `updateSettings`, and `assertAcceptingOrders`.
 - `runtimeSettings()` in `src/runtime/server.ts` wires the service to the database and existing server telemetry.
 - `assertAcceptingOrders(actor)` is the admission helper used by order transports.
-- `RuntimeNotice`, `AdminRuntimeSettings`, and `useRuntimeSettings` are in `src/runtime/components.tsx`. A notice component can report loaded settings through `onSettingsChange` to avoid a second poller in checkout.
+- `RuntimeNotice`, `AdminRuntimeSettings`, and `useRuntimeSettings` are in `src/runtime/components.tsx`; their labels come from the `runtime` namespace (`src/i18n/messages/<language>/runtime.json`), loaded by the root layout. A notice component can report loaded settings through `onSettingsChange` to avoid a second poller in checkout.
 
 ## Telemetry and verification
 
