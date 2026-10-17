@@ -20,3 +20,9 @@
 .locale-switcher-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .locale-switcher select{appearance:none;border:1px solid var(--line);border-radius:999px;background:transparent;color:inherit;font-size:12px;line-height:1;padding:7px 12px;cursor:pointer}
 .locale-switcher select:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+/* The admin top bar is dense: the selector takes the size of its neighbors (small buttons and the demo indicator) and the text color of the current breadcrumb, which keeps it legible. */
+.admin-topbar .locale-switcher select{font-size:10px;min-height:30px;padding:0 12px;color:#536547}
+@media(max-width:640px){.admin-topbar .locale-switcher select{min-height:28px;padding-inline:10px}}
+
+/* Money in the metric cards must stay on one line: Intl keeps the currency code and amount together. */
+@media(max-width:640px){.metric-card>strong{font-size:22px;letter-spacing:-.6px}}

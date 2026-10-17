@@ -6,12 +6,14 @@ Partí de una aplicación de comercio funcional. Reutilizá sus módulos de iden
 
 [English](README.md) · **Español** · [Documentación](docs/README.md) · [Últimos cambios](CHANGELOG.es.md)
 
+La aplicación incluye **inglés y español** y usa USD como moneda predeterminada. [Idiomas y moneda →](docs/i18n.es.md)
+
 [![CI](https://github.com/JuanCG13/inzaiq-saas-starter/actions/workflows/ci.yml/badge.svg)](https://github.com/JuanCG13/inzaiq-saas-starter/actions/workflows/ci.yml)
 [![Licencia: MIT](https://img.shields.io/badge/Licencia-MIT-2563eb.svg)](LICENSE)
 [![Next.js 16.4.2](https://img.shields.io/badge/Next.js-16.4.2-111111?logo=nextdotjs)](package.json)
 [![TypeScript 7.0.2](https://img.shields.io/badge/TypeScript-7.0.2-3178c6?logo=typescript&logoColor=white)](package.json)
 
-![InzaiQ SaaS Starter — panel de administración con pedidos, inventario y acceso para agentes](docs/screenshots/admin-overview.png)
+![InzaiQ SaaS Starter — panel de administración con pedidos, inventario y acceso para agentes](docs/screenshots/en/admin-overview.webp)
 
 > El cliente necesita un sistema → un agente desarrollador ensambla la instalación → el propietario autoriza a su asistente para operarlo mediante MCP.
 
@@ -34,17 +36,28 @@ El manifest es un índice de navegación y dependencias para agentes. Selecciona
 
 ## Vista de la interfaz
 
-Capturas reales de la aplicación de referencia, cuya interfaz utiliza textos en español. La tienda NOMA demuestra el módulo de comercio; la marca y el contenido se adaptan a cada cliente.
+Capturas reales de la instalación de referencia en ejecución, tomadas con un recorrido automatizado del navegador (`npm run screenshots`) sobre los datos demo locales. Las capturas se muestran en inglés, el idioma predeterminado; cada pantalla también está disponible en español bajo `/es`. La tienda NOMA demuestra el módulo de comercio; la marca, el catálogo y las imágenes se reemplazan por los del cliente.
 
-| Tienda | Ajustes operativos en caliente |
+| Tienda | Detalle de producto |
 | --- | --- |
-| ![Tienda de comercio en escritorio](docs/screenshots/storefront.png) | ![Aviso por empresa y control de aceptación de pedidos](docs/screenshots/runtime-settings.png) |
+| ![Página de inicio con portada, selector de idioma y bolsa](docs/screenshots/en/storefront-hero.webp) | ![Diálogo de producto con precio, stock y botón para añadir a la bolsa](docs/screenshots/en/storefront-product.webp) |
+| **Bolsa y pago** | **Pedidos** |
+| ![Bolsa con productos y formulario de datos del cliente](docs/screenshots/en/bag-checkout.webp) | ![Tabla de pedidos pendientes, completados y cancelados](docs/screenshots/en/admin-orders.webp) |
+| **Guía de conexión del agente (MCP)** | **Ajustes operativos en caliente** |
+| ![Guía de tres pasos para conectar un asistente por MCP](docs/screenshots/en/admin-agents.webp) | ![Aviso del negocio y pausa o reanudación de pedidos nuevos](docs/screenshots/en/admin-settings.webp) |
 
 <details>
-<summary>Ver la tienda en móvil</summary>
+<summary>Más pantallas: editor de producto, consentimiento OAuth y móvil</summary>
 <br />
-<img src="docs/screenshots/storefront-mobile.png" alt="Tienda de comercio en una pantalla móvil" width="280" />
+
+| Editor de producto | Consentimiento OAuth |
+| --- | --- |
+| ![Editor de producto con la moneda predeterminada](docs/screenshots/en/admin-product-editor.webp) | ![Consentimiento OAuth donde el propietario otorga acceso acotado a un asistente](docs/screenshots/en/consent.webp) |
+
+<img src="docs/screenshots/en/storefront-mobile.webp" alt="Tienda en una pantalla móvil" width="240" /> <img src="docs/screenshots/en/admin-mobile.webp" alt="Administración en una pantalla móvil" width="240" />
 </details>
+
+**[Ver las 23 pantallas →](docs/screens.es.md)** (inicio de sesión, alta del negocio, consentimiento, estados del pago, administración). Origen y método exacto de captura: [`docs/screenshots/PROVENANCE.md`](docs/screenshots/PROVENANCE.md).
 
 ## Ejecutar la demo
 
@@ -65,7 +78,7 @@ Usá un checkout nuevo sin configuración de demo:
 
 ```bash
 npm ci
-npm run configure -- --name "Mi negocio" --currency USD --locale es-PY
+npm run configure -- --name "Mi negocio" --currency USD --locale es --locales es,en
 cp .env.example .env.local
 ```
 
@@ -87,7 +100,14 @@ Creá la cuenta del propietario en `/sign-in` y el negocio en `/onboarding`. Par
 
 [Configuración de base de datos e invariantes →](docs/database.md)
 
-La marca y los módulos se configuran en [`src/template.config.ts`](src/template.config.ts); los agentes se orientan con [`template.manifest.json`](template.manifest.json) y [`AGENTS.md`](AGENTS.md). Los textos de la interfaz de referencia están en español. Adaptalos al cliente, reemplazá las imágenes de muestra y cargá el catálogo real. Cambiar la moneda configurada no convierte los precios existentes.
+La marca, los idiomas, la moneda y los módulos se configuran en [`src/template.config.ts`](src/template.config.ts); los agentes se orientan con [`template.manifest.json`](template.manifest.json) y [`AGENTS.md`](AGENTS.md). Adaptá los textos en `src/i18n/messages`, reemplazá las imágenes de muestra y cargá el catálogo real.
+
+### Idiomas y moneda
+
+- **Inglés y español vienen incluidos.** Las páginas viven bajo `/en` y `/es`; quien no eligió idioma pasa al de su navegador y, si no hay coincidencia, al predeterminado de la instalación. Cuando hay más de un idioma habilitado aparece un selector.
+- **Para agregar otro idioma**, copiá `src/i18n/messages/en` a una carpeta nueva, traducila y registrala una vez en `src/i18n/config.ts`. Las pruebas de paridad listan lo que falte, incluidas las formas plurales que ese idioma necesita. [Paso a paso →](docs/i18n.es.md#5-añadir-un-idioma)
+- **USD es la moneda predeterminada.** Cambiala, junto con la lista del editor de productos, con `npm run configure -- --currency EUR --currencies EUR,USD,GBP`. Los precios existentes nunca se convierten, cada producto conserva su moneda y los importes siguen siendo enteros en la unidad menor. [Detalle de la moneda →](docs/i18n.es.md#7-moneda)
+- Los nombres, descripciones y categorías de los productos son datos del comercio y no se traducen; solo se traduce la interfaz.
 
 ## Que el propietario use su propio agente
 
@@ -121,7 +141,7 @@ Empezá por [flujo para agentes](docs/agent-workflow.md), [telemetría](docs/tel
 
 ## Verificación
 
-Evidencia local registrada: **201 pruebas automatizadas y 6 escenarios de navegador aprobados**, que incluyen transacciones, aislamiento de empresas, OAuth/MCP, recuperación de pagos, escritorio/móvil y ajustes en caliente. También aprobaron los tipos, la compilación de producción y el arranque standalone. El [registro de verificación](docs/verification.md) detalla el alcance y la reproducción; el badge de CI muestra el estado actual del workflow del repositorio.
+Evidencia local registrada: **328 pruebas automatizadas y 36 escenarios de navegador aprobados**, que incluyen transacciones, aislamiento de empresas, OAuth/MCP, recuperación de pagos, escritorio/móvil, ajustes en caliente y el enrutamiento inglés/español, el formato de moneda y el selector de idioma. También aprobaron los tipos, la compilación de producción y el arranque standalone. El [registro de verificación](docs/verification.md) detalla el alcance y la reproducción; el badge de CI muestra el estado actual del workflow del repositorio.
 
 ```bash
 npm run doctor
@@ -164,6 +184,6 @@ Los README están disponibles en inglés y español. Las guías técnicas utiliz
 
 ## Versión y licencia
 
-**Versión actual: v0.1.0.** Comercio modular, MCP/OAuth, Stripe Checkout, ajustes operativos en caliente y herramientas de despliegue/extensión. [Ver changelog →](CHANGELOG.es.md)
+**Versión actual: v0.1.0.** Comercio modular, MCP/OAuth, Stripe Checkout, ajustes operativos en caliente y herramientas de despliegue/extensión. Sin publicar como versión: interfaz en inglés y español con enrutamiento por idioma, moneda predeterminada configurable (USD) y una galería de capturas automatizada. [Ver changelog →](CHANGELOG.es.md)
 
-Distribuido bajo [licencia MIT](LICENSE). Las dependencias y las imágenes de muestra conservan sus respectivas licencias.
+Distribuido bajo [licencia MIT](LICENSE). Las ilustraciones de demostración de `public/demo` son originales y están cubiertas por la misma licencia; las dependencias conservan sus respectivas licencias.

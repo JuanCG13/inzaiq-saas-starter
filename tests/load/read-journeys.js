@@ -4,6 +4,12 @@ import { Rate, Trend } from 'k6/metrics';
 
 // All traffic is GET. No seed, checkout, inventory adjustment, payment or mutation.
 const KIND = 'ecommerce';
+// Pages live under a language prefix (/en, /es). An unprefixed URL such as / is answered by the proxy with a
+// 307 to /<locale>, so measuring it would time a redirect instead of a page. The journey requests the prefixed
+// storefront and, because redirects are disabled, a 307 counts as a contract failure. API paths are never redirected.
+const locale = __ENV.LOCALE === undefined ? 'en' : __ENV.LOCALE;
+if (!/^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/.test(locale)) throw new Error('LOCALE must be a language code enabled in i18n.locales, for example en or es.');
+const storefrontPath = `/${locale}`;
 function integer(name, fallback, min, max) {
   const raw = __ENV[name] === undefined ? String(fallback) : __ENV[name];
   if (!/^[0-9]+$/.test(raw)) throw new Error(`${name} must be an integer.`);
@@ -72,8 +78,8 @@ export const options = {
     'http_reqs{phase:load}': ['count>0'],
   },
 };
-function get(path, name, phase, cookie) {
-  const headers = { Accept: 'application/json' };
+function get(path, name, phase, cookie, accept = 'application/json') {
+  const headers = { Accept: accept };
   if (cookie) headers.Cookie = cookie;
   return http.get(`${base}${path}`, {
     headers, timeout: `${timeoutSeconds}s`, redirects: 0,
@@ -93,6 +99,11 @@ function validProduct(product) {
     && typeof product.name === 'string' && typeof product.currency === 'string'
     && Number.isSafeInteger(product.priceMinor) && product.priceMinor >= 0;
 }
+// The real localized page: 200 (not a 307), HTML, and the document language matches the requested prefix.
+function storefrontPage(response) {
+  const type = String(response.headers['Content-Type'] || '');
+  return response.status === 200 && type.indexOf('text/html') !== -1 && typeof response.body === 'string' && response.body.indexOf(`<html lang="${locale}"`) !== -1;
+}
 function result(valid, name) {
   check(valid, { [name]: value => value === true });
   businessErrors.add(!valid);
@@ -105,6 +116,9 @@ export function setup() {
   if (!healthy) fail('Process health failed. Check the target before load.');
   const ready = data(get('/api/readiness', 'GET /api/readiness', 'setup'));
   if (!ready || ready.status !== 'ready') fail('Readiness failed. Check configuration and migrations before load.');
+  if (KIND === 'ecommerce' && !storefrontPage(get(storefrontPath, 'GET /:locale', 'setup', undefined, 'text/html'))) {
+    fail(`The storefront page ${storefrontPath} is not a ${locale} HTML page. Check LOCALE against i18n.locales and that the target serves the prefixed route.`);
+  }
   const list = products(get(`${catalogPath}?limit=${pageSize}&offset=0`, `GET ${catalogPath}`, 'setup', cookies[0]));
   if (!list || list.length === 0 || !list.every(validProduct)) fail('Catalog/auth check failed. Seed the staging tenant and select its organization before load.');
   if (KIND === 'pos') {
@@ -117,6 +131,7 @@ export function setup() {
 export default function (setupData) {
   const startedAt = Date.now();
   const cookie = KIND === 'pos' ? cookies[(__VU - 1) % cookies.length] : undefined;
+  if (KIND === 'ecommerce') result(storefrontPage(get(storefrontPath, 'GET /:locale', 'load', undefined, 'text/html')), 'storefront page is the localized HTML, not a redirect');
   const offset = ((__ITER + __VU - 1) % catalogPages) * pageSize;
   const list = products(get(`${catalogPath}?limit=${pageSize}&offset=${offset}`, `GET ${catalogPath}`, 'load', cookie));
   const catalogValid = Boolean(list && list.length > 0 && list.every(validProduct));

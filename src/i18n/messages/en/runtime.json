@@ -1,6 +1,6 @@
 {
   "notice": {
-    "paused": "New operations are paused."
+    "paused": "New orders are paused."
   },
   "loadFailed": "We couldn't update the business status.",
   "settings": {
@@ -13,7 +13,7 @@
     "loading": "Loading settings…",
     "retry": "Retry",
     "acceptOrders": {
-      "label": "Accept new operations",
+      "label": "Accept new orders",
       "help": "While paused, existing orders and sales keep their status."
     },
     "notice": {

@@ -13,14 +13,31 @@ const BASE_URL = 'http://localhost:3000';
 export const PRODUCT_NAME = 'Essential tee';
 export const PRODUCT_SKU = 'NOMA-TEE-01';
 
-/** Collects uncaught exceptions, console errors from the app's own origin and hydration warnings. */
-export function observeErrors(page: Page) {
+/** A resource that a test knows will fail, such as the 404 document it opens on purpose. */
+export interface ExpectedFailure { status: number; path: string }
+
+/** Shorthand for the 404 documents a test opens to check a not-found page. */
+export function expectNotFound(...paths: string[]): ExpectedFailure[] {
+  return paths.map(path => ({ status: 404, path }));
+}
+
+/**
+ * Collects uncaught exceptions, console errors from the app's own origin and hydration warnings.
+ *
+ * Chromium logs "Failed to load resource ... status of 404" for every failed request, including the
+ * 404 document of a page the test opens deliberately, or the 401 that an anonymous visitor gets from
+ * the auth API before being sent to sign-in. `expectedFailures` silences exactly that message (same
+ * status, same URL path); any other failed script, image or API call is still reported.
+ */
+export function observeErrors(page: Page, { expectedFailures = [] }: { expectedFailures?: ExpectedFailure[] } = {}) {
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(`pageerror: ${error.message}`));
   page.on('console', message => {
     const origin = message.location().url;
     const own = !origin || origin.startsWith(BASE_URL);
-    if (message.type() === 'error' && own) errors.push(`console.error: ${message.text()}`);
+    const status = /status of (\d{3})/.exec(message.text())?.[1];
+    const expected = status !== undefined && expectedFailures.some(failure => failure.status === Number(status) && origin === `${BASE_URL}${failure.path}`);
+    if (message.type() === 'error' && own && !expected) errors.push(`console.error: ${message.text()}`);
     // React reports recoverable hydration mismatches as errors in development, but older paths warn.
     if (message.type() === 'warning' && /hydrat|did not match|server rendered/i.test(message.text())) errors.push(`console.warning: ${message.text()}`);
   });
@@ -63,7 +80,12 @@ export function translated(namespace: string, key: string, values: Record<string
   return { en, es };
 }
 
-/** Intl pads currency with no-break spaces; compare with ordinary spaces. */
+/** Intl pads currency with no-break spaces (U+00A0, U+202F); compare with ordinary spaces. */
 export function plainSpaces(text: string) {
-  return text.replace(/[  ]/g, ' ').replace(/\s+/g, ' ').trim();
+  return text.replace(/[\u00a0\u202f]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+/** Matches an accessible name that starts with `text`, for controls that append a badge ("My agent MCP"). */
+export function startingWith(text: string) {
+  return new RegExp(`^${text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`);
 }

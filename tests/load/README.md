@@ -4,13 +4,15 @@
 
 ## Qué mide
 
-Cada recorrido obtiene `GET /api/store/products?limit=20&offset=…` y el detalle de un producto real con `GET /api/store/products/:id`. El catálogo corresponde al `STORE_TENANT_ID` configurado en ese despliegue. No se envían credenciales para esta superficie pública.
+Cada recorrido obtiene la página de la tienda con prefijo de idioma, `GET /<LOCALE>` (por defecto `/en`), el catálogo con `GET /api/store/products?limit=20&offset=…` y el detalle de un producto real con `GET /api/store/products/:id`. El catálogo corresponde al `STORE_TENANT_ID` configurado en ese despliegue. No se envían credenciales para esta superficie pública.
 
-El `setup` comprueba `/api/health`, `/api/readiness` y catálogo no vacío antes de comenzar. Liveness no se usa como sustituto de una lectura de negocio. El script solo envía **GET**; no crea pedidos, cobra, modifica stock, registra cuentas ni rellena datos. La resolución/renovación de una sesión puede realizar mantenimiento interno de autenticación. No hay autenticación dentro del bucle mediante contraseñas.
+Las páginas viven bajo un prefijo de idioma (`/en`, `/es`). Una URL sin prefijo como `/` la responde el proxy con un **307** hacia `/<idioma>`, así que medirla cronometraría una redirección y no una página. Por eso el recorrido pide la ruta con prefijo y, como los redirects están desactivados, un 307, un 404 o una página en otro idioma cuenta como fallo de contrato (`business_errors`). Las rutas `/api/*` no pasan por el proxy de idioma y se piden sin prefijo. La petición de página descarga solo el HTML inicial: no ejecuta JavaScript, no descarga los assets ni hace las llamadas que el navegador hace después (por ejemplo, la carga del catálogo desde el cliente), de modo que no es una medición de experiencia de navegador.
 
-Cada iteración inicia **dos solicitudes secuenciales** de negocio. `RATE=5` significa hasta 5 recorridos iniciados por segundo, aproximadamente 10 solicitudes de negocio/s en la meseta; no significa cinco usuarios humanos concurrentes. El modelo de llegada sigue ofreciendo tráfico aunque suba la latencia. Los VUs son ejecutores necesarios para sostener esa tasa, no cuentas ni sesiones reales. Si faltan, `dropped_iterations` hace fallar el ensayo en vez de presentar menor tráfico como éxito.
+El `setup` comprueba `/api/health`, `/api/readiness`, que `/<LOCALE>` devuelva una página HTML 200 con `<html lang="<LOCALE>">` y catálogo no vacío antes de comenzar. Liveness no se usa como sustituto de una lectura de negocio. El script solo envía **GET**; no crea pedidos, cobra, modifica stock, registra cuentas ni rellena datos. La resolución/renovación de una sesión puede realizar mantenimiento interno de autenticación. No hay autenticación dentro del bucle mediante contraseñas.
 
-Las comprobaciones exigen estado 200, JSON y el contrato básico de productos/pedidos. Una página de login 200, HTML de proxy o respuesta vacía no cuenta como una lectura correcta. Los nombres de ruta en métricas no contienen IDs de producto, y no se registran bodies, cookies ni tokens. No habilitar `--http-debug`, volcados de entorno ni capturas de headers en un runner con credenciales.
+Cada iteración inicia **tres solicitudes secuenciales** de negocio (página, catálogo y detalle). `RATE=5` significa hasta 5 recorridos iniciados por segundo, aproximadamente 15 solicitudes de negocio/s en la meseta; no significa cinco usuarios humanos concurrentes. El modelo de llegada sigue ofreciendo tráfico aunque suba la latencia. Los VUs son ejecutores necesarios para sostener esa tasa, no cuentas ni sesiones reales. Si faltan, `dropped_iterations` hace fallar el ensayo en vez de presentar menor tráfico como éxito.
+
+Las comprobaciones exigen estado 200, JSON y el contrato básico de productos/pedidos, y para la página, estado 200, `text/html` y el idioma pedido en `<html lang>`. Una página de login 200, HTML de proxy o respuesta vacía no cuenta como una lectura correcta. Los nombres de ruta en métricas no contienen IDs de producto, y no se registran bodies, cookies ni tokens. No habilitar `--http-debug`, volcados de entorno ni capturas de headers en un runner con credenciales.
 
 ## Preparación reproducible
 
@@ -24,7 +26,7 @@ Instalar k6 según su [documentación oficial](https://grafana.com/docs/k6/lates
 ```sh
 mkdir -p test-results
 export BASE_URL=https://staging.example.com
-export RATE=5 RAMP_SECONDS=10 HOLD_SECONDS=30 DOWN_SECONDS=10
+export RATE=5 RAMP_SECONDS=10 HOLD_SECONDS=30 DOWN_SECONDS=10 LOCALE=en
 export PREALLOCATED_VUS=5 MAX_VUS=25 RUN_ID=staging-read-baseline
 k6 run --out json=test-results/load-metrics.json tests/load/read-journeys.js
 ```
@@ -38,14 +40,15 @@ La prueba pública cubre una tienda por origen. Para comparar tiendas, usar desp
 | Variable | Defecto | Rango / significado |
 | --- | --- | --- |
 | `BASE_URL` | Obligatoria | Origen autorizado; sin `/api` al final |
+| `LOCALE` | `en` | Idioma de la página medida (`/<LOCALE>`); debe estar en `i18n.locales` de `src/template.config.ts`. Letras de idioma, p. ej. `en` o `es`; otro valor o un idioma no habilitado detiene el `setup` |
 | `RATE` | 5 | 1–1000 recorridos/s en la meseta; límite del guion, no capacidad avalada |
 | `RAMP_SECONDS` / `DOWN_SECONDS` | 10 / 10 | 1–300 segundos por fase |
 | `HOLD_SECONDS` | 30 | 1–1800 segundos; usar una meseta sostenida tras el smoke |
 | `PREALLOCATED_VUS` / `MAX_VUS` | 5 / 25 | 1–2000; máximo >= preasignados, consumirán recursos del generador |
 | `PAGE_SIZE` / `CATALOG_PAGES` | 20 / 1 | 1–100 filas; 1–1000 páginas de catálogo; offset máximo generado 99900 |
 | `TIMEOUT_SECONDS` | 5 | 1–30 por solicitud; no hay reintentos que oculten errores |
-| `P95_MS` | 750 | p95 de solicitudes de negocio menor a este valor |
-| `JOURNEY_P95_MS` | 1500 | p95 del recorrido completo de dos lecturas menor a este valor |
+| `P95_MS` | 750 | p95 de solicitudes de negocio (página incluida) menor a este valor |
+| `JOURNEY_P95_MS` | 1500 | p95 del recorrido completo de tres lecturas menor a este valor |
 | `MAX_ERROR_RATE` | 0.01 | 0–0.1; tasas de fallos HTTP y de contrato menores o iguales |
 | `RUN_ID` | `read-baseline` | 1–64 letras, dígitos, guiones o `_`; sin datos de clientes |
 

@@ -52,18 +52,25 @@ export function lookup(tree: MessageTree | undefined, key: string): MessageNode 
   return node;
 }
 
-/** Replaces {name} placeholders. An unknown placeholder stays visible instead of printing "undefined". */
-export function interpolate(template: string, values?: MessageValues): string {
+/**
+ * Replaces {name} placeholders. Numbers are grouped for the locale (1500 -> 1,500 or 1.500); pass a string
+ * for a value that must stay verbatim. An unknown placeholder stays visible instead of printing "undefined".
+ */
+export function interpolate(template: string, values?: MessageValues, formatLocale?: string): string {
   if (!values) return template;
-  return template.replace(/\{(\w+)\}/g, (token, name: string) => (name in values ? String(values[name]) : token));
+  return template.replace(/\{(\w+)\}/g, (token, name: string) => {
+    if (!(name in values)) return token;
+    const value = values[name]!;
+    return typeof value === 'number' && formatLocale ? new Intl.NumberFormat(formatLocale).format(value) : String(value);
+  });
 }
 
 export function render(node: MessageNode | undefined, key: string, formatLocale: string, values?: MessageValues): string {
-  if (typeof node === 'string') return interpolate(node, values);
+  if (typeof node === 'string') return interpolate(node, values, formatLocale);
   if (isPluralForms(node)) {
     const count = Number(values?.count);
     const category = Number.isFinite(count) ? new Intl.PluralRules(formatLocale).select(count) : 'other';
-    return interpolate(node[category] ?? node.other, values);
+    return interpolate(node[category] ?? node.other, values, formatLocale);
   }
   return key;
 }

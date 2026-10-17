@@ -6,12 +6,14 @@ Start with a working commerce application. Reuse its identity, database, payment
 
 **English** · [Español](README.es.md) · [Documentation](docs/README.md) · [Latest changes](CHANGELOG.md)
 
+The application ships in **English and Spanish**, with USD as the default currency. [Languages and currency →](docs/i18n.md)
+
 [![CI](https://github.com/JuanCG13/inzaiq-saas-starter/actions/workflows/ci.yml/badge.svg)](https://github.com/JuanCG13/inzaiq-saas-starter/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-2563eb.svg)](LICENSE)
 [![Next.js 16.4.2](https://img.shields.io/badge/Next.js-16.4.2-111111?logo=nextdotjs)](package.json)
 [![TypeScript 7.0.2](https://img.shields.io/badge/TypeScript-7.0.2-3178c6?logo=typescript&logoColor=white)](package.json)
 
-![InzaiQ SaaS Starter — administration dashboard with orders, inventory and agent access](docs/screenshots/admin-overview.png)
+![InzaiQ SaaS Starter — administration dashboard with orders, inventory and agent access](docs/screenshots/en/admin-overview.webp)
 
 > A client needs a system → a coding agent assembles the installation → the owner authorizes an assistant to operate it through MCP.
 
@@ -34,17 +36,28 @@ The manifest is a navigation and dependency index for agents. Selecting an exten
 
 ## Interface preview
 
-Real application captures from the reference installation, whose UI uses Spanish copy. The NOMA storefront demonstrates the commerce module; branding and customer content are replaceable.
+Real captures of the running reference installation, taken by an automated browser tour (`npm run screenshots`) against the local demo seed. The UI is in English, the default language; every screen is also available in Spanish under `/es`. The NOMA storefront demonstrates the commerce module; branding, catalog and imagery are replaceable.
 
-| Storefront | Live operational settings |
+| Storefront | Product detail |
 | --- | --- |
-| ![Desktop commerce storefront](docs/screenshots/storefront.png) | ![Tenant notice and order-admission settings](docs/screenshots/runtime-settings.png) |
+| ![Landing page with hero, language selector and bag](docs/screenshots/en/storefront-hero.webp) | ![Product dialog with price, stock and add to bag](docs/screenshots/en/storefront-product.webp) |
+| **Bag and checkout** | **Orders** |
+| ![Bag with items and the customer checkout form](docs/screenshots/en/bag-checkout.webp) | ![Orders table with pending, completed and cancelled orders](docs/screenshots/en/admin-orders.webp) |
+| **Agent connection guide (MCP)** | **Live operational settings** |
+| ![Three-step guide to connect an assistant over MCP](docs/screenshots/en/admin-agents.webp) | ![Business notice and pause or resume of new orders](docs/screenshots/en/admin-settings.webp) |
 
 <details>
-<summary>View the mobile storefront</summary>
+<summary>More screens: product editor, OAuth consent and mobile</summary>
 <br />
-<img src="docs/screenshots/storefront-mobile.png" alt="Commerce storefront on a mobile viewport" width="280" />
+
+| Product editor | OAuth consent |
+| --- | --- |
+| ![Product editor with the default currency](docs/screenshots/en/admin-product-editor.webp) | ![OAuth consent where the owner grants an assistant scoped access](docs/screenshots/en/consent.webp) |
+
+<img src="docs/screenshots/en/storefront-mobile.webp" alt="Storefront on a phone" width="240" /> <img src="docs/screenshots/en/admin-mobile.webp" alt="Administration on a phone" width="240" />
 </details>
+
+**[Browse all 23 screens →](docs/screens.md)** (sign-in, onboarding, consent, checkout states, administration). Provenance and the exact capture method: [`docs/screenshots/PROVENANCE.md`](docs/screenshots/PROVENANCE.md).
 
 ## Run the demo
 
@@ -65,7 +78,7 @@ Use a fresh checkout without demo configuration:
 
 ```bash
 npm ci
-npm run configure -- --name "Your Business" --currency USD --locale en-US
+npm run configure -- --name "Your Business" --currency USD --locale en --locales en,es
 cp .env.example .env.local
 ```
 
@@ -87,7 +100,14 @@ Create the owner account at `/sign-in` and the business at `/onboarding`. Set `S
 
 [Database setup and invariants →](docs/database.md)
 
-Branding and module switches live in [`src/template.config.ts`](src/template.config.ts); agents navigate through [`template.manifest.json`](template.manifest.json) and [`AGENTS.md`](AGENTS.md). The reference UI copy is Spanish. Customize it for the client, replace sample imagery and enter the real catalog. Changing the configured currency does not convert existing prices.
+Branding, languages, currency and module switches live in [`src/template.config.ts`](src/template.config.ts); agents navigate through [`template.manifest.json`](template.manifest.json) and [`AGENTS.md`](AGENTS.md). Customize the copy in `src/i18n/messages`, replace the sample imagery and enter the real catalog.
+
+### Languages and currency
+
+- **English and Spanish are included.** Pages live under `/en` and `/es`; a visitor without a saved choice is sent to the language of their browser, then to the installation default. A language selector appears whenever more than one language is enabled.
+- **Add another language** by copying `src/i18n/messages/en` to a new folder, translating it and registering it once in `src/i18n/config.ts`. The parity tests list anything missing, including the plural forms that language needs. [Step by step →](docs/i18n.md#5-add-a-language)
+- **USD is the default currency.** Change it, and the list offered in the product editor, with `npm run configure -- --currency EUR --currencies EUR,USD,GBP`. Existing prices are never converted, each product keeps its own currency and amounts stay integer minor units. [Currency details →](docs/i18n.md#7-currency)
+- Product names, descriptions and categories are merchant data and are not translated; only the interface is.
 
 ## Let the owner use their own agent
 
@@ -121,7 +141,7 @@ Start with [agent workflow](docs/agent-workflow.md), [telemetry](docs/telemetry.
 
 ## Verification
 
-Recorded local evidence: **201 automated tests and 6 browser scenarios passed**, including database transactions, tenant isolation, OAuth/MCP, payment recovery, desktop/mobile flows and live settings. Type checking, the production build and a standalone startup also passed. See [the verification record](docs/verification.md) for scope and reproduction details; the CI badge reports the repository's current workflow status.
+Recorded local evidence: **328 automated tests and 36 browser scenarios passed**, including database transactions, tenant isolation, OAuth/MCP, payment recovery, desktop/mobile flows, live settings and English/Spanish routing, currency formatting and the language selector. Type checking, the production build and a standalone startup also passed. See [the verification record](docs/verification.md) for scope and reproduction details; the CI badge reports the repository's current workflow status.
 
 ```bash
 npm run doctor
@@ -164,6 +184,6 @@ The READMEs are available in English and Spanish. Technical guides currently use
 
 ## Release and license
 
-**Current release: v0.1.0.** Modular commerce, MCP/OAuth, Stripe Checkout, live operational settings and deployment/extension tooling. [Read the changelog →](CHANGELOG.md)
+**Current release: v0.1.0.** Modular commerce, MCP/OAuth, Stripe Checkout, live operational settings and deployment/extension tooling. Unreleased: English and Spanish interface with locale routing, configurable default currency (USD) and an automated screenshot gallery. [Read the changelog →](CHANGELOG.md)
 
-Released under the [MIT license](LICENSE). Dependencies and sample imagery retain their respective licenses.
+Released under the [MIT license](LICENSE). The demo artwork in `public/demo` is original and covered by the same license; dependencies retain their respective licenses.

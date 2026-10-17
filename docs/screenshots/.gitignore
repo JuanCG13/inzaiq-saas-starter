@@ -1,0 +1,2 @@
+# Output of "SCREENSHOT_LOCALE=es npm run screenshots": a proof that the tour is language-agnostic, not documentation.
+es/

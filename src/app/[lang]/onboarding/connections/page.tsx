@@ -11,6 +11,9 @@ export default function ConnectionsPage() {
   const t = useT('auth');
   const localePath = useLocalePath();
   const [items, setItems] = useState<Connection[]>([]); const [tenantId, setTenantId] = useState('');
+  // Read after hydration: the server cannot know the public origin, and reading it during render mismatches the HTML.
+  const [origin, setOrigin] = useState('');
+  useEffect(() => setOrigin(window.location.origin), []);
   // Kept as a kind and worded at render time, so the loading effect never depends on the translator.
   const [loading, setLoading] = useState(true); const [busy, setBusy] = useState(''); const [failure, setFailure] = useState<'load' | 'disconnect' | null>(null);
   useEffect(() => { void (async () => {
@@ -39,7 +42,7 @@ export default function ConnectionsPage() {
   return <>
     <div style={switcherCorner}><LocaleSwitcher /></div>
     <main id="main-content" style={{ maxWidth: 760, margin: '60px auto', padding: 24 }}><LocaleLink href={templateConfig.kind === 'pos' ? '/' : '/admin'}>{t('connections.back')}</LocaleLink><p style={{ marginTop: 40, color: '#6e6e73' }}>{t('connections.eyebrow')}</p><h1 style={{ fontSize: 38 }}>{t('connections.title')}</h1><p style={{ color: '#6e6e73', lineHeight: 1.6 }}>{t('connections.intro')}</p>{loading && <p role="status">{t('connections.loading')}</p>}{failure && <p role="alert" style={{ color: '#b42318' }}>{t(failure === 'load' ? 'connections.errors.load' : 'connections.errors.disconnect')}</p>}<div style={{ display: 'grid', gap: 16, margin: '28px 0' }}>{items.map(item => <article key={item.id} style={{ border: '1px solid #e5e5e7', borderRadius: 20, padding: 24 }}><h2>{item.name || t('connections.defaultAgent')}</h2><p style={{ color: '#6e6e73', overflowWrap: 'anywhere' }}>{item.scopes.join(' · ')}</p><button onClick={() => void disconnect(item.id)} disabled={!!busy} style={{ background: '#fff1f0', color: '#b42318', padding: '10px 18px', border: 0, borderRadius: 10 }}>{busy === item.id ? t('connections.disconnecting') : t('connections.disconnect')}</button></article>)}</div>{!loading && !items.length && !failure && <p>{t('connections.empty')}</p>}
-      <section style={{ marginTop: 40, padding: 24, background: '#f5f5f7', borderRadius: 20 }}><h2 style={{ fontSize: 20 }}>{t('connections.details.title')}</h2><p>{t('connections.details.mcpUrl')} <code style={{ overflowWrap: 'anywhere' }}>{typeof window !== 'undefined' ? window.location.origin : ''}/api/mcp</code></p><p>{t('connections.details.tenantId')} <code style={{ overflowWrap: 'anywhere' }}>{tenantId || '—'}</code></p><p style={{ color: '#6e6e73' }}>{t('connections.details.hint')}</p></section>
+      <section style={{ marginTop: 40, padding: 24, background: '#f5f5f7', borderRadius: 20 }}><h2 style={{ fontSize: 20 }}>{t('connections.details.title')}</h2><p>{t('connections.details.mcpUrl')} <code style={{ overflowWrap: 'anywhere' }}>{origin}/api/mcp</code></p><p>{t('connections.details.tenantId')} <code style={{ overflowWrap: 'anywhere' }}>{tenantId || '—'}</code></p><p style={{ color: '#6e6e73' }}>{t('connections.details.hint')}</p></section>
     </main>
   </>;
 }

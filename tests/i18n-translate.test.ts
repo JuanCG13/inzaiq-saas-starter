@@ -77,3 +77,15 @@ describe('currency settings and formatting', () => {
     expect(formatMoney(2900, 'EUR', 'en-US')).toBe('€29.00');
   });
 });
+
+describe('number interpolation', () => {
+  it('groups numbers for the locale and leaves strings verbatim', () => {
+    const english = createTranslator<'common'>({ units: { one: '{count} unit', other: '{count} units' }, ref: 'Ref {id}' }, 'en-US') as unknown as (key: string, values?: Record<string, string | number>) => string;
+    const spanish = createTranslator<'common'>({ units: { one: '{count} unidad', other: '{count} unidades' } }, 'es-PY') as unknown as typeof english;
+    expect(english('units', { count: 1500 })).toBe('1,500 units');
+    expect(english('units', { count: 1 })).toBe('1 unit');
+    expect(spanish('units', { count: 1500 })).toBe('1.500 unidades');
+    expect(english('ref', { id: '0012345' })).toBe('Ref 0012345');
+    expect(interpolate('{n}', { n: 1500 })).toBe('1500');
+  });
+});

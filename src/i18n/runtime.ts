@@ -1,9 +1,12 @@
 import { templateConfig } from '@/template.config';
 import { localeDefinition, resolveLocalized, validateCurrencySettings, validateI18nSettings, type LocaleCode } from './config';
 
-/** Validated once at import so an invalid installation fails at build/start, not on a customer's request. */
+/**
+ * Validated once at import on the server (build, start, proxy) so an invalid installation fails there and
+ * not on a customer's request. Browsers skip the currency check: their ICU data can lack a code the server accepts.
+ */
 const settings = validateI18nSettings(templateConfig.i18n);
-validateCurrencySettings(templateConfig);
+if (typeof window === 'undefined') validateCurrencySettings(templateConfig);
 
 export const defaultLocale = settings.defaultLocale as LocaleCode;
 /** Locales offered by this installation, default first. */

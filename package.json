@@ -21,6 +21,7 @@
     "doctor": "node --import tsx scripts/doctor.ts",
     "configure": "node --import tsx scripts/configure.ts",
     "test:e2e": "playwright test",
+    "screenshots": "playwright test -c playwright.screenshots.config.ts && node --import tsx scripts/build-gallery.ts",
     "capacity:check": "node deploy/enterprise/check-budget.mjs",
     "test:load": "k6 run tests/load/read-journeys.js"
   },

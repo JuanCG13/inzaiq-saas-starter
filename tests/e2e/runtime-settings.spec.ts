@@ -18,7 +18,7 @@ test('owner pauses new checkout live, updates an open storefront and resumes wit
     await expect(customer.getByRole('button', { name: 'Place order', exact: true })).toBeEnabled();
     await owner.goto('/en/admin');
     await owner.getByRole('navigation', { name: 'Administration' }).getByRole('button', { name: 'Settings', exact: true }).click();
-    const accepting = owner.getByRole('checkbox', { name: /Accept new operations/ });
+    const accepting = owner.getByRole('checkbox', { name: /Accept new orders/ });
     await accepting.uncheck();
     await owner.getByLabel('Business notice', { exact: true }).fill('Temporary QA pause');
     let saved = owner.waitForResponse(response => response.url().endsWith('/api/admin/settings') && response.request().method() === 'PATCH');

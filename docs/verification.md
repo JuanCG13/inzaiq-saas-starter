@@ -2,7 +2,23 @@
 
 Fecha: 2026-10-17. Esta evidencia corresponde al código de esta entrega y a pruebas locales; no demuestra una instalación cloud ni una conexión a una cuenta real de ChatGPT/Claude.
 
-## Resultados
+## Cambios sin publicar: idiomas, moneda y capturas
+
+Fecha: 2026-10-17. Evidencia local sobre el árbol que incorpora la interfaz en inglés/español, el enrutamiento por idioma, la moneda predeterminada configurable y la galería de capturas. Los resultados de 0.1.0 de la sección siguiente se conservan como registro histórico.
+
+| Comprobación | Resultado |
+|---|---|
+| TypeScript y tipos de rutas Next (`npm run typecheck`) | PASS |
+| Vitest | 328/328 PASS, 25 archivos |
+| Compilación Next.js de producción con `DEMO_MODE=false` (`npm run verify`) | PASS, salida standalone |
+| Navegador (`npm run test:e2e`, Chromium) | 36/36 PASS, desde un `demo.db` nuevo |
+| Recorrido de capturas (`npm run screenshots`) | PASS: 23 imágenes en inglés, 780 398 bytes |
+
+Qué cubren las pruebas nuevas: negociación y redirección del proxy (cookie, `Accept-Language`, parámetros de URL preservados, rutas excluidas), cambio de idioma con el selector y persistencia en cookie, 404 reales y traducidos, formato de precios por idioma, `USD` como primera opción del editor de productos, errores de API en inglés con código estable y su texto traducido en la interfaz, ausencia de errores de página, de consola y de hidratación en cada pantalla en ambos idiomas, paridad de claves, marcadores y formas plurales entre catálogos, un código de error traducido por cada `AppError`, validación de `template.config.ts` y del comando `configure`, y que las imágenes y la galería no se desvíen del manifiesto.
+
+Límites de esta evidencia: solo se usó Chromium (sin Firefox ni Safari); el escenario de carga k6 se adaptó a rutas con idioma pero no se ejecutó con k6 y no respalda ninguna cifra de capacidad; el comportamiento de `Vary`/`no-store` detrás de un CDN y un recorrido OAuth con una cuenta real de ChatGPT/Claude siguen pendientes por instalación (el recorrido de capturas usa un cliente OAuth local de prueba). Las capturas en español se generan con `SCREENSHOT_LOCALE=es` pero no se versionan. El formato de moneda depende de los datos ICU de Node y del navegador.
+
+## Resultados de la versión 0.1.0
 
 | Comprobación | Resultado |
 |---|---|
@@ -75,6 +91,7 @@ npm test
 DEMO_MODE=false NEXT_TELEMETRY_DISABLED=1 npm run build
 npx playwright install chromium
 npm run test:e2e
+npm run screenshots   # opcional: regenera docs/screenshots/en y las galerías
 ```
 
 Las pruebas de navegador modifican la base demo. No se ejecutan sobre datos del cliente. GitHub Actions incluye jobs independientes de tipos/pruebas/build y navegador; la ejecución alojada se consulta en la pestaña Actions del repositorio.

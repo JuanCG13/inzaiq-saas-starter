@@ -16,9 +16,9 @@
     "manage": "Administrar",
     "bag": "Mi bolsa",
     "bagCount": {
-      "one": "Carrito, {count} artículo",
-      "many": "Carrito, {count} de artículos",
-      "other": "Carrito, {count} artículos"
+      "one": "Mi bolsa, {count} artículo",
+      "many": "Mi bolsa, {count} de artículos",
+      "other": "Mi bolsa, {count} artículos"
     }
   },
   "footer": {
