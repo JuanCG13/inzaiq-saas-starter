@@ -1,0 +1,236 @@
+{
+  "schemaVersion": 1,
+  "entrypoint": "AGENTS.md",
+  "configuration": "src/template.config.ts",
+  "modules": {
+    "catalog": {
+      "service": "src/core/service.ts",
+      "requires": []
+    },
+    "inventory": {
+      "service": "src/core/service.ts",
+      "requires": [
+        "catalog"
+      ]
+    },
+    "orders": {
+      "service": "src/core/service.ts",
+      "requires": [
+        "catalog",
+        "inventory"
+      ]
+    },
+    "mcp": {
+      "transport": "src/lib/mcp.ts",
+      "requires": [
+        "auth",
+        "catalog"
+      ]
+    },
+    "auth": {
+      "provider": "better-auth",
+      "config": "src/lib/auth.ts",
+      "required": true
+    },
+    "telemetry": {
+      "config": "src/lib/telemetry.ts",
+      "required": true
+    },
+    "runtime": {
+      "required": true,
+      "service": "src/runtime/service.ts",
+      "http": "src/app/api/admin/settings/route.ts",
+      "requires": [
+        "auth",
+        "telemetry"
+      ]
+    },
+    "payments": {
+      "service": "src/payments/service.ts",
+      "contract": "src/payments/contracts.ts",
+      "registry": "src/payments/registry.ts",
+      "providers": [
+        "manual",
+        "stripe"
+      ],
+      "requires": [
+        "orders",
+        "inventory"
+      ],
+      "configuration": "PAYMENT_PROVIDER"
+    }
+  },
+  "databaseProviders": [
+    "supabase",
+    "neon",
+    "turso",
+    "postgres",
+    "sqlite"
+  ],
+  "qualityGate": "npm run verify",
+  "production": {
+    "guide": "docs/production.md",
+    "container": "Dockerfile",
+    "deployment": "deploy/kubernetes.yaml",
+    "liveness": "/api/health",
+    "readiness": "/api/readiness",
+    "migrationStrategy": "expand-contract",
+    "enterpriseGuide": "docs/enterprise.md",
+    "autoscaling": "deploy/enterprise/hpa.yaml",
+    "capacityCheck": "npm run capacity:check",
+    "loadScenario": "tests/load/read-journeys.js",
+    "loadCommand": "npm run test:load",
+    "loadRunner": "external k6 installation required",
+    "capacityStatus": "not-benchmarked"
+  },
+  "extensions": {
+    "kind": "navigation-index",
+    "guide": "docs/extending.md",
+    "moduleLoading": "explicit-code-registration",
+    "entrypoints": {
+      "sharedContracts": "src/core/contracts.ts",
+      "isolatedServiceExample": "src/runtime/service.ts",
+      "serviceComposition": "src/runtime/server.ts",
+      "databaseSchema": "src/db/schema.ts",
+      "migrationRegistry": "src/db/migrate.ts",
+      "schemaReadiness": "src/lib/readiness.ts",
+      "authenticatedActor": [
+        "src/lib/request-actor.ts",
+        "src/lib/actor.ts"
+      ],
+      "scopeRegistry": "src/lib/auth.ts",
+      "consentLabels": "src/app/consent/consent-form.tsx",
+      "httpBoundary": "src/lib/http.ts",
+      "httpExample": "src/app/api/admin/settings/route.ts",
+      "mcpRegistration": "src/lib/mcp.ts",
+      "browserClient": "src/lib/api-client.ts",
+      "uiComposition": "src/components/admin-workspace.tsx",
+      "telemetry": "src/lib/telemetry.ts",
+      "moduleConfiguration": "src/template.config.ts",
+      "dependencyChecks": "scripts/doctor.ts",
+      "businessModelContracts": "src/extensions/contracts.ts"
+    },
+    "referenceTests": [
+      "tests/runtime-settings.test.ts",
+      "tests/runtime-settings-http.test.ts",
+      "tests/mcp-tools.test.ts",
+      "tests/security-independent.test.ts",
+      "tests/readiness.test.ts",
+      "tests/e2e/runtime-settings.spec.ts",
+      "tests/extension-contracts.test.ts"
+    ],
+    "qualityGates": {
+      "candidate": "npm run verify",
+      "changedUserJourney": "npm run test:e2e",
+      "configuredEnvironment": "npm run doctor"
+    },
+    "compatibility": {
+      "migrations": "append-only-expand-contract",
+      "deployment": "immutable-release",
+      "rollback": "previous-binary-compatible-with-expanded-schema",
+      "tenantState": "request-scoped-actor-and-persistent-database"
+    },
+    "workflowGuides": [
+      "docs/agent-workflow.md",
+      "docs/production.md",
+      "docs/database.md",
+      "docs/telemetry.md",
+      "docs/business-models.md"
+    ]
+  },
+  "extensionProfiles": {
+    "physical": {
+      "implementationStatus": "contract-only",
+      "guide": "docs/business-models.md",
+      "contractFile": "src/extensions/contracts.ts",
+      "contracts": [
+        "FulfillmentProvider",
+        "WebhookVerifier",
+        "OutboxWriter",
+        "DurableJobLease"
+      ],
+      "existingCapabilities": [
+        "catalog",
+        "inventory",
+        "orders",
+        "auth",
+        "telemetry",
+        "runtime",
+        "payments:one-time-manual-or-stripe-checkout"
+      ],
+      "requiredCapabilities": [
+        "persisted-shipping-quotes-and-approved-order-total",
+        "carrier-provider-adapter",
+        "tenant-bound-delivery-address",
+        "signed-carrier-webhooks-and-deduplication",
+        "durable-effect-storage-and-worker",
+        "returns-refunds-and-tax-policy"
+      ],
+      "contractValidation": "tests/extension-contracts.test.ts",
+      "providerValidationStatus": "not-implemented"
+    },
+    "digital": {
+      "implementationStatus": "contract-only",
+      "guide": "docs/business-models.md",
+      "contractFile": "src/extensions/contracts.ts",
+      "contracts": [
+        "EntitlementProvider",
+        "OutboxWriter",
+        "DurableJobLease"
+      ],
+      "existingCapabilities": [
+        "catalog",
+        "inventory",
+        "orders",
+        "auth",
+        "telemetry",
+        "runtime",
+        "payments:one-time-manual-or-stripe-checkout"
+      ],
+      "requiredCapabilities": [
+        "verified-buyer-identity",
+        "private-object-storage",
+        "tenant-bound-entitlement-persistence",
+        "payment-to-grant-policy",
+        "authorized-expiring-downloads",
+        "refund-and-revocation-policy",
+        "durable-effect-storage-and-worker"
+      ],
+      "contractValidation": "tests/extension-contracts.test.ts",
+      "providerValidationStatus": "not-implemented"
+    },
+    "saas": {
+      "implementationStatus": "contract-only",
+      "guide": "docs/business-models.md",
+      "contractFile": "src/extensions/contracts.ts",
+      "contracts": [
+        "SubscriptionProvider",
+        "EntitlementProvider",
+        "WebhookVerifier",
+        "OutboxWriter",
+        "DurableJobLease"
+      ],
+      "existingCapabilities": [
+        "catalog",
+        "inventory",
+        "orders",
+        "auth",
+        "telemetry",
+        "runtime",
+        "payments:one-time-manual-or-stripe-checkout"
+      ],
+      "requiredCapabilities": [
+        "niche-product-domain",
+        "recurring-billing-provider-adapter",
+        "tenant-bound-plan-catalog-and-subscriptions",
+        "signed-subscription-webhooks-and-deduplication",
+        "subscription-state-to-access-policy",
+        "atomic-usage-limits",
+        "durable-effect-storage-and-worker",
+        "billing-refund-and-tax-policy"
+      ],
+      "contractValidation": "tests/extension-contracts.test.ts",
+      "providerValidationStatus": "not-implemented"
+    }
+  }
+}

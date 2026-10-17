@@ -1,0 +1,144 @@
+# TEMPLATE: choose namespace, registry digest, domain/ingress and an existing Secret.
+# Never apply before the one-off migration and staging checks in docs/production.md.
+# Remote PostgreSQL/libSQL only; independent replicas cannot share a local SQLite file.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agentic-ecommerce
+  labels:
+    app.kubernetes.io/name: agentic-ecommerce
+spec:
+  replicas: 2
+  revisionHistoryLimit: 5
+  minReadySeconds: 10
+  progressDeadlineSeconds: 600
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: agentic-ecommerce
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: agentic-ecommerce
+    spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 45
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: agentic-ecommerce
+                topologyKey: kubernetes.io/hostname
+      containers:
+        - name: app
+          # Replace with the immutable image digest promoted from staging.
+          image: registry.example.com/your-team/agentic-ecommerce:replace-with-release
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: DEMO_MODE
+              value: 'false'
+            - name: PORT
+              value: '3000'
+            - name: HOSTNAME
+              value: 0.0.0.0
+          # existingSecret: provision outside git, ideally through a secret manager.
+          # Must contain DATABASE_PROVIDER, DATABASE_URL, APP_URL, BETTER_AUTH_URL,
+          # BETTER_AUTH_SECRET, STORE_TENANT_ID and provider-specific server secrets.
+          # Keep the auth secret stable across replicas/releases; never use demo values.
+          envFrom:
+            - secretRef:
+                name: agentic-ecommerce-runtime
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: '1'
+              memory: 1Gi
+          startupProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            periodSeconds: 15
+            timeoutSeconds: 3
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/readiness
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 2
+            successThreshold: 1
+          lifecycle:
+            preStop:
+              exec:
+                # Let endpoint removal propagate before SIGTERM reaches Node.
+                # Tune this plus ingress drain and grace period with real traffic.
+                command: [node, -e, 'setTimeout(() => {}, 10000)']
+          volumeMounts:
+            - name: next-cache
+              mountPath: /app/.next/cache
+            - name: temporary
+              mountPath: /tmp
+      volumes:
+        - name: next-cache
+          emptyDir:
+            sizeLimit: 512Mi
+        - name: temporary
+          emptyDir:
+            sizeLimit: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: agentic-ecommerce
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: agentic-ecommerce
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: agentic-ecommerce
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: agentic-ecommerce
